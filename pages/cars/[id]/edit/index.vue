@@ -11,7 +11,6 @@
           <input
               type="number"
               v-model.number="car.price"
-              id="price"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
               placeholder="Enter price"
           />
@@ -24,7 +23,6 @@
               type="number"
               v-model.number="car.mileage"
               @input="updateCondition"
-              id="mileage"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
               placeholder="Enter mileage"
           />
@@ -36,7 +34,6 @@
           <input
               type="text"
               :value="car.condition"
-              id="condition"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent"
               disabled
           />
@@ -58,6 +55,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+const toast = useToast();
 const loading = ref(true);
 const route = useRoute();
 const router = useRouter();

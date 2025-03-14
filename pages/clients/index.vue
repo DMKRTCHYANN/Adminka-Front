@@ -31,26 +31,26 @@
               class="cursor-pointer w-7 h-7"
               @click="openDeleteModal(row)"
           />
-          <UModal
-              v-model:is-open="isModalOpen"
-              :title="'Confirm Delete'"
-              :content="'Are you sure you want to delete this car?'"
-              @confirm="deleteCarHandler"
-          />
         </div>
       </template>
     </UTable>
+    <client-modal
+      v-model="isModalOpen"
+      :client="selectedClient"
+      @confirm="deleteClientHandler"
+    />
   </div>
 </template>
 <script setup>
 import {ref} from "vue";
+import ClientModal from "~/compoments/ClientModal.vue";
 
 definePageMeta({
   layout: 'navbar'
 })
 
 const isModalOpen = ref(false);
-const selectedCar = ref(null);
+const selectedClient = ref(null);
 const clients = ref([]);
 const columns = [
   {key: 'id', label: 'ID'},
@@ -60,9 +60,27 @@ const columns = [
   {key: 'actions', label: 'Actions'}
 ];
 
-const openDeleteModal = (car) => {
-  selectedCar.value = car;
+const openDeleteModal = (client) => {
+  selectedClient.value = client;
   isModalOpen.value = true;
+};
+
+const deleteClientHandler = async () => {
+  if (!selectedClient.value) return;
+
+  try {
+    const { error } = await useFetch(`/api/clients/${selectedClient.value.id}`, {
+      method: 'DELETE',
+    });
+    if (error.value) throw error.value;
+    clients.value = clients.value.filter((client) => client.id !== selectedClient.value.id);
+    console.log('Car deleted successfully.');
+  } catch (err) {
+    console.error('Error deleting car:', err);
+  } finally {
+    isModalOpen.value = false;
+    selectedClient.value = null;
+  }
 };
 
 const getClients = async () => {
