@@ -5,7 +5,7 @@
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-bold">
-              Delete {{ car?.brand }} {{ car?.model }}?
+              Are you sure you want to delete {{ building.title }}?
             </h3>
             <UButton
                 icon="i-heroicons-x-mark-20-solid"
@@ -25,7 +25,7 @@
 </template>
 <script setup>
 const props = defineProps({
-  car: Object,
+  building: Object,
   modelValue: Boolean
 })
 

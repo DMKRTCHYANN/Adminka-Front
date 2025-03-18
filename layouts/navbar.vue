@@ -1,27 +1,13 @@
 <template>
   <div class="flex">
-    <div class="w-[15%] bg-[#1B263B] p-[30px] ">
+    <div class="w-[15%] bg-[#323a40] min-h-screen p-[30px] ">
       <nuxt-link to="/">
-        <button class="mb-[30px]  flex justify-center max-w-[200px] w-full border border-black dark:bg-gray-700 dark:text-white">
-          Car
+        <button class="flex justify-center items-center gap-2 max-w-[200px] w-full rounded-lg transform transition-transform duration-300 hover:translate-y-[-5px]">
+          <img src="/images/apartment.png" alt="Apartment" class="w-6 h-6 transform transition-transform duration-300 hover:scale-110">  Buildings
         </button>
       </nuxt-link>
-      <div>
-        <nuxt-link to="/clients">
-          <button class="flex justify-center max-w-[200px] w-full border border-black dark:bg-gray-700 dark:text-white">
-            Client
-          </button>
-        </nuxt-link>
-      </div>
-      <div>
-        <nuxt-link to="/sales">
-          <button class="flex mt-[30px]  justify-center max-w-[200px] w-full border border-black dark:bg-gray-700 dark:text-white">
-            Sales
-          </button>
-        </nuxt-link>
-      </div>
     </div>
-    <div class="w-[85%] bg-[#F8F9FA] p-[30px]">
+    <div class="w-[85%] bg-gray-200 p-[30px]">
       <NuxtPage/>
     </div>
   </div>
