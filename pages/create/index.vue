@@ -1,8 +1,8 @@
 <template>
-  <div class="flex">
+  <div class="flex justify-center">
     <div class="w-full bg-white rounded-lg max-w-[1500px] shadow-lg">
       <div class="bg-gray-500 rounded-t-lg">
-        <h1 class="text-xl text-white p-4">Edit Building</h1>
+        <h1 class="text-xl text-white p-4">Create Building</h1>
       </div>
       <div v-if="loading" class="text-center text-gray-500">Loading...</div>
       <div v-else class="p-4">
@@ -12,10 +12,12 @@
           </label>
           <input
               type="text"
+              id="title"
               v-model="building.title"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
               placeholder="Enter Title"
           />
+          <p v-if="errors.title" class="text-red-600 mt-1">{{ errors.title[0] }}</p>
         </div>
         <div class="mb-4">
           <label for="short_description" class="block text-sm font-medium text-gray-700 mb-2">
@@ -23,22 +25,39 @@
           </label>
           <input
               type="text"
+              id="short_description"
               v-model="building.short_description"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
               placeholder="Enter Short Description"
           />
+          <p v-if="errors.short_description" class="text-red-600 mt-1">{{ errors.short_description[0] }}</p>
         </div>
         <div class="mb-4">
           <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
             Long Description <span>*</span>
           </label>
           <textarea
+              id="long_description"
               v-model="building.long_description"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
               rows="4"
               placeholder="Enter Long Description"
           ></textarea>
+          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
         </div>
+        <!--        <div class="mb-4">-->
+        <!--          <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">-->
+        <!--            Long Description <span>*</span>-->
+        <!--          </label>-->
+        <!--          <ClientOnly>-->
+        <!--            <Editor-->
+        <!--                v-model="building.long_description"-->
+        <!--                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"-->
+        <!--                placeholder="Enter Long Description"-->
+        <!--            />-->
+        <!--          </ClientOnly>-->
+        <!--          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>-->
+        <!--        </div>-->
         <div class="mb-6">
           <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
           <div
@@ -61,9 +80,8 @@
                 class="max-h-40 object-contain mt-4"
             />
           </div>
-          <p
-              class="text-black p-[10px]"
-          >jpeg,png,jpg,gif</p>
+          <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
+          <p v-if="errors.bg_image" class="text-red-600 mt-1">{{ errors.bg_image[0] }}</p>
         </div>
         <div class="flex justify-center gap-4">
           <button
@@ -73,7 +91,7 @@
             Cancel
           </button>
           <button
-              @click="updateBuilding"
+              @click="createBuilding"
               class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm"
           >
             Save Changes
@@ -84,73 +102,70 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref, nextTick} from "vue";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
+import {useFetch} from "#app";
+// import Editor from "~/compoments/Editor.vue";
 
 definePageMeta({
-  layout: 'navbar',
+  layout: "navbar",
 });
 
-const route = useRoute();
 const router = useRouter();
-const selectedFiles = ref(null);
+const errors = ref({});
+const loading = ref(false);
 const imagePreview = ref(null);
-const loading = ref(true);
 const building = ref({
-  title: '',
-  short_description: '',
-  long_description: '',
-  bg_image: '',
+  title: "",
+  short_description: "",
+  long_description: "",
+  bg_image: "",
 });
-
-const getBuilding = async () => {
-  const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
-  if (data.value) {
-    building.value = {...data.value};
-    loading.value = false;
-  }
-  if (error.value) {
-    console.error('Error fetching building:', error.value);
-    showError({statusCode: 404, message: 'Building not found'});
-  }
-};
 
 const handleFileChange = (event) => {
-  selectedFiles.value = event.target.files;
-  if (selectedFiles.value && selectedFiles.value[0]) {
-    imagePreview.value = URL.createObjectURL(selectedFiles.value[0]);
+  const file = event.target.files[0];
+  if (file) {
+    building.value.bg_image = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 };
 
-const updateBuilding = async () => {
+const createBuilding = async () => {
   try {
+    loading.value = true;
+    errors.value = {};
     const formData = new FormData();
-    formData.append("_method", "PUT");
     formData.append("title", building.value.title);
     formData.append("short_description", building.value.short_description);
     formData.append("long_description", building.value.long_description);
-    if (selectedFiles.value?.[0]) {
-      formData.append("bg_image", selectedFiles.value[0]);
+    if (building.value.bg_image) {
+      formData.append("bg_image", building.value.bg_image);
     }
-    const {data, error} = await useFetch(`/api/buildings/${route.params.id}`, {
-      method: 'POST',
+    const {data, error} = await useFetch(`/api/buildings/`, {
+      method: "POST",
       body: formData,
+      headers: {Accept: "application/json"},
     });
-    if (error.value) {
-      throw new Error(error.value.message || 'Error updating building');
+    if (error && error.value) {
+      errors.value = error.value.data?.errors || {
+        general: "An unknown error occurred",
+      };
+      return;
     }
-    await router.push('/');
-  } catch (error) {
-    console.error('Update error:', error.message);
-    alert('Failed to update building. Please check the console for details.');
+    if (data) {
+      await router.push("/");
+    } else {
+      errors.value.general = "Failed to create building. Server response is empty.";
+    }
+  } catch (err) {
+    console.error("An error occurred:", err);
+    errors.value.general = "There was an error sending your request.";
   } finally {
-    if (imagePreview.value) {
-      URL.revokeObjectURL(imagePreview.value);
-    }
+    loading.value = false;
   }
 };
-
-onMounted(async () => {
-  await nextTick();
-  await getBuilding();
-});
 </script>

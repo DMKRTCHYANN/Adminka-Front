@@ -8,9 +8,10 @@
               Are you sure you want to delete {{ building.title }}?
             </h3>
             <UButton
-                icon="i-heroicons-x-mark-20-solid"
                 color="gray"
                 variant="ghost"
+                icon="i-heroicons-x-mark-20-solid"
+                class="-my-1"
                 @click="closeModal"
             />
           </div>

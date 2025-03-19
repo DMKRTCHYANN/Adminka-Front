@@ -1,5 +1,14 @@
 <template>
   <div class="min-h-screen">
+    <div class="">
+      <nuxt-link :to="'/create'">
+        <button
+            class="bg-blue-500 p-3 text-white rounded-lg mb-[20px] hover:bg-blue-600 transition-all duration-300 shadow-sm"
+        >
+          Create new Building
+        </button>
+      </nuxt-link>
+    </div>
     <UTable
         :rows="buildings"
         :columns="columns"
@@ -31,7 +40,7 @@
               class="cursor-pointer w-7 h-7"
               @click="openDeleteModal(row)"
           />
-          <NuxtLink :to="`/buildings/${row.id}/image_edit`">
+          <NuxtLink :to="`/buildings/${row.id}/image-edit`">
             <img src="/images/image.png" alt="Image" class="cursor-pointer w-7 h-7"/>
           </NuxtLink>
         </div>
@@ -41,7 +50,7 @@
             v-if="row.bg_image"
             :src="`http://localhost:8000/storage/${row.bg_image}`"
             alt="User Image"
-            class="w-12 h-12 rounded-full object-cover"
+            class="w-12 h-12 object-cover"
         />
         <span v-else>No image</span>
       </template>
@@ -97,9 +106,7 @@ const deleteBuildingHandler = async () => {
     const {error} = await useFetch(`/api/buildings/${selectedBuilding.value.id}`, {
       method: 'DELETE',
     });
-
     if (error.value) throw error.value;
-
     buildings.value = buildings.value.filter(b => b.id !== selectedBuilding.value.id);
   } catch (err) {
     console.error('Error deleting buildings:', err);
