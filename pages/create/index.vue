@@ -32,34 +32,41 @@
           />
           <p v-if="errors.short_description" class="text-red-600 mt-1">{{ errors.short_description[0] }}</p>
         </div>
-        <div class="mb-4">
-          <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
-            Long Description <span>*</span>
-          </label>
-          <textarea
-              id="long_description"
-              v-model="building.long_description"
-              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-              rows="4"
-              placeholder="Enter Long Description"
-          ></textarea>
-          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
-        </div>
         <!--        <div class="mb-4">-->
         <!--          <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">-->
         <!--            Long Description <span>*</span>-->
         <!--          </label>-->
+        <!--          <textarea-->
+        <!--              id="long_description"-->
+        <!--              v-model="building.long_description"-->
+        <!--              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"-->
+        <!--              rows="4"-->
+        <!--              placeholder="Enter Long Description"-->
+        <!--          ></textarea>-->
         <!--          <ClientOnly>-->
         <!--            <Editor-->
+        <!--                id="long_description"-->
         <!--                v-model="building.long_description"-->
-        <!--                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"-->
-        <!--                placeholder="Enter Long Description"-->
         <!--            />-->
         <!--          </ClientOnly>-->
         <!--          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>-->
         <!--        </div>-->
+
+                <div class="mb-4">
+                  <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Long Description <span>*</span>
+                  </label>
+                  <ClientOnly>
+                    <Editor
+                        v-model="building.long_description"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
+                        placeholder="Enter Long Description"
+                    />
+                  </ClientOnly>
+                  <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
+                </div>
         <div class="mb-6">
-          <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+          <label for="file" class="block text-sm font-medium  text-gray-700 mb-2">Upload Image</label>
           <div
               class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
           >
@@ -105,7 +112,7 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {useFetch} from "#app";
-// import Editor from "~/compoments/Editor.vue";
+import Editor from "~/compoments/Editor.vue";
 
 definePageMeta({
   layout: "navbar",

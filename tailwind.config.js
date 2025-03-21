@@ -10,6 +10,9 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin'),
+    require('flowbite-typography'),
+    require('autoprefixer'),
+  ],
 }
-

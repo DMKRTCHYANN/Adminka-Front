@@ -10,14 +10,6 @@ export default defineNuxtConfig({
     modules: [
         'nuxt-proxy', '@nuxt/ui'
     ],
-    // plugins: [
-    //     '~/plugins/ckeditor.client.js'
-    // ],
-    // build: {
-    //     transpile: [
-    //         '@ckeditor/ckeditor5-vue'
-    //     ],
-    // },
     nitro: {
         devProxy: {
             "/api/": {
@@ -32,4 +24,7 @@ export default defineNuxtConfig({
             autoprefixer: {},
         },
     },
-})
+    build: {
+        transpile: ['@tiptop/vue-3', '@tiptop/pm']
+    },
+});
