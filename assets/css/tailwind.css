@@ -1,5 +1,10 @@
-@import 'https://cdn.quilljs.com/1.3.6/quill.snow.css';
-/*@import 'flowbite';*/
+@import '@vueup/vue-quill/dist/vue-quill.snow.css';
+
+
+.ql-editor {
+    color: #000 !important; 
+  }
+
 
 @tailwind base;
 @tailwind components;

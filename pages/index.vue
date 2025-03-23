@@ -77,7 +77,6 @@ const columns = ref([
   {key: 'id', label: 'ID'},
   {key: 'title', label: 'Title'},
   {key: 'short_description', label: 'Short Description'},
-  {key: 'long_description', label: 'Long Description'},
   {key: 'bg_image', label: 'BG Image'},
   {key: 'actions', label: 'Actions'},
 ]);

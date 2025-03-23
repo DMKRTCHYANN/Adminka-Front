@@ -51,18 +51,17 @@
         <!--          </ClientOnly>-->
         <!--          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>-->
         <!--        </div>-->
-
                 <div class="mb-4">
                   <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
                     Long Description <span>*</span>
                   </label>
-                  <ClientOnly>
-                    <Editor
-                        v-model="building.long_description"
-                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-                        placeholder="Enter Long Description"
+                    <QuillEditor
+                        contentType="html"
+                        v-model:content="building.long_description" 
+                        class="text-black"
+                        :modules="editorModules"
+                        :formats="editorFormats"
                     />
-                  </ClientOnly>
                   <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
                 </div>
         <div class="mb-6">
@@ -112,7 +111,7 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {useFetch} from "#app";
-import Editor from "~/compoments/Editor.vue";
+import { QuillEditor } from '@vueup/vue-quill';
 
 definePageMeta({
   layout: "navbar",
@@ -128,6 +127,30 @@ const building = ref({
   long_description: "",
   bg_image: "",
 });
+
+
+
+
+const editorFormats = [
+  'background',
+  'bold', 'italic', 'underline',
+  'align', 'list', 'bullet',
+];
+
+const editorModules = {
+  toolbar: [
+    [{ 'background': [] }],
+    ['bold', 'italic', 'underline'],
+    [{ 'align': [] }],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  ],
+};
+
+
+
+
+
+
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -147,7 +170,7 @@ const createBuilding = async () => {
     errors.value = {};
     const formData = new FormData();
     formData.append("title", building.value.title);
-    formData.append("short_description", building.value.short_description);
+    formData.append("short_description", building.value.short_description);    
     formData.append("long_description", building.value.long_description);
     if (building.value.bg_image) {
       formData.append("bg_image", building.value.bg_image);

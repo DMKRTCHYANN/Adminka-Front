@@ -10,72 +10,57 @@
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
             Title <span>*</span>
           </label>
-          <input
-              type="text"
-              v-model="building.title"
-              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-              placeholder="Enter Title"
-          />
+          <input type="text" v-model="building.title"
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
+            placeholder="Enter Title" />
         </div>
         <div class="mb-4">
           <label for="short_description" class="block text-sm font-medium text-gray-700 mb-2">
             Short Description <span>*</span>
           </label>
-          <input
-              type="text"
-              v-model="building.short_description"
-              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-              placeholder="Enter Short Description"
-          />
+          <input type="text" v-model="building.short_description"
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
+            placeholder="Enter Short Description" />
         </div>
         <div class="mb-4">
           <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
             Long Description <span>*</span>
           </label>
-          <textarea
+          <!-- <textarea
               v-model="building.long_description"
               class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
               rows="4"
               placeholder="Enter Long Description"
-          ></textarea>
+          ></textarea> -->
+          <QuillEditor 
+              contentType="html" 
+              v-model:content="building.long_description" 
+              class="text-black"
+              placeholder="Enter Long Description"
+          />
         </div>
         <div class="mb-6">
           <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
           <div
-              class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
-          >
-            <input
-                id="file"
-                type="file"
-                accept="image/*"
-                class="absolute inset-0 opacity-0 cursor-pointer"
-                @change="handleFileChange"
-            />
+            class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer">
+            <input id="file" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer"
+              @change="handleFileChange" />
             <div v-if="!imagePreview && !building.bg_image" class="text-gray-500 text-sm text-center">
               Drag and drop an image or click to select
             </div>
-            <img
-                v-if="imagePreview || building.bg_image"
-                :src="imagePreview || `http://localhost:8000/storage/${building.bg_image}`"
-                alt="Image Preview"
-                class="max-h-40 object-contain mt-4"
-            />
+            <img v-if="imagePreview || building.bg_image"
+              :src="imagePreview || `http://localhost:8000/storage/${building.bg_image}`" alt="Image Preview"
+              class="max-h-40 object-contain mt-4" />
           </div>
-          <p
-              class="text-black p-[10px]"
-          >jpeg,png,jpg,gif</p>
+          <p class="text-black p-[10px]">jpeg,png,jpg,gif</p>
         </div>
         <div class="flex justify-center gap-4">
-          <button
-              @click="router.push('/')"
-              class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm"
-          >
+          <button @click="router.push('/')"
+            class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm">
             Cancel
           </button>
-          <button
-              @click="updateBuilding"
-              class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm"
-          >
+          <button @click="updateBuilding"
+            class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm">
             Save Changes
           </button>
         </div>
@@ -84,7 +69,8 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref, nextTick} from "vue";
+import { onMounted, ref, nextTick } from "vue";
+import { QuillEditor } from '@vueup/vue-quill';
 
 definePageMeta({
   layout: 'navbar',
@@ -103,14 +89,14 @@ const building = ref({
 });
 
 const getBuilding = async () => {
-  const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
+  const { data, error } = await useFetch(`/api/buildings/${route.params.id}`);
   if (data.value) {
-    building.value = {...data.value};
+    building.value = { ...data.value };
     loading.value = false;
   }
   if (error.value) {
     console.error('Error fetching building:', error.value);
-    showError({statusCode: 404, message: 'Building not found'});
+    showError({ statusCode: 404, message: 'Building not found' });
   }
 };
 
@@ -131,7 +117,7 @@ const updateBuilding = async () => {
     if (selectedFiles.value?.[0]) {
       formData.append("bg_image", selectedFiles.value[0]);
     }
-    const {data, error} = await useFetch(`/api/buildings/${route.params.id}`, {
+    const { data, error } = await useFetch(`/api/buildings/${route.params.id}`, {
       method: 'POST',
       body: formData,
     });
