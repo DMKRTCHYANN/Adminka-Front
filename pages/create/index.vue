@@ -4,66 +4,50 @@
       <div class="bg-gray-500 rounded-t-lg">
         <h1 class="text-xl text-white p-4">Create Building</h1>
       </div>
-      <div v-if="loading" class="text-center text-gray-500">Loading...</div>
+      <div v-if="loading" class="text-center p-[10px] text-gray-500">Loading...</div>
       <div v-else class="p-4">
         <div class="mb-4">
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
             Title <span>*</span>
           </label>
-          <input
-              type="text"
-              id="title"
-              v-model="building.title"
-              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-              placeholder="Enter Title"
-          />
+          <client-only>
+            <rich-editor
+                contentType="html"
+                v-model:content="building.title"
+                :options="editorOptions"
+                class="text-black"
+            />
+          </client-only>
           <p v-if="errors.title" class="text-red-600 mt-1">{{ errors.title[0] }}</p>
         </div>
         <div class="mb-4">
           <label for="short_description" class="block text-sm font-medium text-gray-700 mb-2">
             Short Description <span>*</span>
           </label>
-          <input
-              type="text"
-              id="short_description"
-              v-model="building.short_description"
-              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"
-              placeholder="Enter Short Description"
-          />
+          <client-only>
+            <rich-editor
+                contentType="html"
+                v-model:content="building.short_description"
+                :options="editorOptions"
+                class="text-black"
+            />
+          </client-only>
           <p v-if="errors.short_description" class="text-red-600 mt-1">{{ errors.short_description[0] }}</p>
         </div>
-        <!--        <div class="mb-4">-->
-        <!--          <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">-->
-        <!--            Long Description <span>*</span>-->
-        <!--          </label>-->
-        <!--          <textarea-->
-        <!--              id="long_description"-->
-        <!--              v-model="building.long_description"-->
-        <!--              class="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-black bg-white"-->
-        <!--              rows="4"-->
-        <!--              placeholder="Enter Long Description"-->
-        <!--          ></textarea>-->
-        <!--          <ClientOnly>-->
-        <!--            <Editor-->
-        <!--                id="long_description"-->
-        <!--                v-model="building.long_description"-->
-        <!--            />-->
-        <!--          </ClientOnly>-->
-        <!--          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>-->
-        <!--        </div>-->
-                <div class="mb-4">
-                  <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
-                    Long Description <span>*</span>
-                  </label>
-                    <QuillEditor
-                        contentType="html"
-                        v-model:content="building.long_description" 
-                        class="text-black"
-                        :modules="editorModules"
-                        :formats="editorFormats"
-                    />
-                  <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
-                </div>
+        <div class="mb-4">
+          <label for="long_description" class="block text-sm font-medium text-gray-700 mb-2">
+            Long Description <span>*</span>
+          </label>
+          <client-only>
+            <rich-editor
+                contentType="html"
+                v-model:content="building.long_description"
+                :options="editorOptions"
+                class="text-black"
+            />
+          </client-only>
+          <p v-if="errors.long_description" class="text-red-600 mt-1">{{ errors.long_description[0] }}</p>
+        </div>
         <div class="mb-6">
           <label for="file" class="block text-sm font-medium  text-gray-700 mb-2">Upload Image</label>
           <div
@@ -111,7 +95,6 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {useFetch} from "#app";
-import { QuillEditor } from '@vueup/vue-quill';
 
 definePageMeta({
   layout: "navbar",
@@ -127,30 +110,18 @@ const building = ref({
   long_description: "",
   bg_image: "",
 });
-
-
-
-
-const editorFormats = [
-  'background',
-  'bold', 'italic', 'underline',
-  'align', 'list', 'bullet',
-];
-
-const editorModules = {
-  toolbar: [
-    [{ 'background': [] }],
-    ['bold', 'italic', 'underline'],
-    [{ 'align': [] }],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-  ],
-};
-
-
-
-
-
-
+const editorOptions = ref({
+  theme: 'snow',
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{'font': []}],
+      [{'size': ['small', false, 'large', 'huge']}],
+      [{'color': []}],
+    ],
+  },
+  formats: ['bold', 'italic', 'underline', 'font', 'size', 'color'],
+});
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -170,7 +141,7 @@ const createBuilding = async () => {
     errors.value = {};
     const formData = new FormData();
     formData.append("title", building.value.title);
-    formData.append("short_description", building.value.short_description);    
+    formData.append("short_description", building.value.short_description);
     formData.append("long_description", building.value.long_description);
     if (building.value.bg_image) {
       formData.append("bg_image", building.value.bg_image);
@@ -199,3 +170,6 @@ const createBuilding = async () => {
   }
 };
 </script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
+</style>

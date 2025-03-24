@@ -54,6 +54,12 @@
         />
         <span v-else>No image</span>
       </template>
+      <template #title-data="{ row }">
+        <div v-html="row.title"></div>
+      </template>
+      <template #short_description-data="{ row }">
+        <div v-html="row.short_description"></div>
+      </template>
     </UTable>
     <Modal
         v-model="isModalOpen"
@@ -62,8 +68,9 @@
     />
   </div>
 </template>
+
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, nextTick} from 'vue';
 import Modal from "~/compoments/Modal.vue";
 
 definePageMeta({
