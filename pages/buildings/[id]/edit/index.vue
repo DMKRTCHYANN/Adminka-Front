@@ -57,7 +57,7 @@
                  :src="imagePreview || `http://localhost:8000/storage/${building.bg_image}`" alt="Image Preview"
                  class="max-h-40 object-contain mt-4"/>
           </div>
-          <p class="text-black p-[10px]">jpeg,png,jpg,gif</p>
+          <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
         </div>
         <div class="flex justify-center gap-4">
           <button @click="router.push('/')"
@@ -90,17 +90,18 @@ const building = ref({
   long_description: '',
   bg_image: '',
 });
+
 const editorOptions = ref({
   theme: 'snow',
   modules: {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{'font': []}],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{'size': ['small', false, 'large', 'huge']}],
       [{'color': []}],
     ],
   },
-  formats: ['bold', 'italic', 'underline', 'font', 'size', 'color'],
+  formats: ['bold', 'italic', 'underline', 'size', 'color', 'list'],
 });
 
 const getBuilding = async () => {
@@ -156,4 +157,5 @@ onMounted(async () => {
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
+@import 'https://cdn.quilljs.com/1.3.7/quill.snow.css';
 </style>

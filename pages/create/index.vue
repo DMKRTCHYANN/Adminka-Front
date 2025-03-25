@@ -51,7 +51,8 @@
         <div class="mb-6">
           <label for="file" class="block text-sm font-medium  text-gray-700 mb-2">Upload Image</label>
           <div
-              class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
+              class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col
+              items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
           >
             <input
                 id="file"
@@ -76,13 +77,15 @@
         <div class="flex justify-center gap-4">
           <button
               @click="router.push('/')"
-              class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm"
+              class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600
+                  transition-all duration-300 shadow-sm"
           >
             Cancel
           </button>
           <button
               @click="createBuilding"
-              class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm"
+              class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600
+                  transition-all duration-300 shadow-sm"
           >
             Save Changes
           </button>
@@ -110,18 +113,20 @@ const building = ref({
   long_description: "",
   bg_image: "",
 });
+
 const editorOptions = ref({
   theme: 'snow',
   modules: {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{'font': []}],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{'size': ['small', false, 'large', 'huge']}],
       [{'color': []}],
     ],
   },
-  formats: ['bold', 'italic', 'underline', 'font', 'size', 'color'],
+  formats: ['bold', 'italic', 'underline', 'size', 'color', 'list'],
 });
+
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -171,5 +176,6 @@ const createBuilding = async () => {
 };
 </script>
 <style>
+@import 'https://cdn.quilljs.com/1.3.7/quill.snow.css';
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap');
 </style>

@@ -5,9 +5,7 @@
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-bold">
-              <h3 class="text-lg font-bold">
-                Are you sure you want to delete <span v-html="building.title"></span>
-              </h3>
+              Are you sure you want to delete <span v-html="building.title"></span>?
             </h3>
             <UButton
                 color="white"
