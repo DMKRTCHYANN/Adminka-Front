@@ -38,7 +38,7 @@
             <div v-if="!images.length" class="text-gray-500 text-sm text-center">
               Drag and drop images or click to select
             </div>
-            <div v-else class="grid grid-cols-3 gap-4 mt-4">
+            <div v-else class="grid grid-cols-4 gap-4 mt-4 w-full">
               <div class="relative">
                 <div
                     v-for="(img, index) in images"
@@ -59,6 +59,7 @@
                 </div>
               </div>
             </div>
+
           </div>
           <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
           <div class="flex justify-center gap-4">

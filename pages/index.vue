@@ -58,7 +58,7 @@
         <div v-html="row.title"></div>
       </template>
       <template #short_description-data="{ row }">
-        <div v-html="row.short_description"></div>
+        <div v-html="truncate(row.short_description, 15)"></div>
       </template>
     </UTable>
     <Modal
@@ -68,7 +68,6 @@
     />
   </div>
 </template>
-
 <script setup>
 import {ref, onMounted, nextTick} from 'vue';
 import Modal from "~/compoments/Modal.vue";
@@ -100,6 +99,12 @@ const getBuildings = async () => {
     console.error('Unexpected error:', err);
   }
 };
+
+const truncate = (text, length) => {
+  if (!text) return '';
+  return text.length > length ? text.slice(0, length) + '...' : text;
+};
+
 
 const openDeleteModal = (building) => {
   selectedBuilding.value = building;
