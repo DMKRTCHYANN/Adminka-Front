@@ -11,11 +11,9 @@
             Title <span>*</span>
           </label>
           <client-only>
-            <rich-editor
-                contentType="html"
-                v-model:content="building.title"
-                :options="editorOptions"
-                class="text-black"
+            <input
+                v-model="building.title"
+                class="bg-white text-black w-full p-2 border border-gray-300"
             />
           </client-only>
           <p v-if="errors.title" class="text-red-600 mt-1">{{ errors.title[0] }}</p>
@@ -25,11 +23,9 @@
             Short Description <span>*</span>
           </label>
           <client-only>
-            <rich-editor
-                contentType="html"
-                v-model:content="building.short_description"
-                :options="editorOptions"
-                class="text-black"
+            <input
+                v-model="building.short_description"
+                class="bg-white text-black w-full p-2 border border-gray-300"
             />
           </client-only>
           <p v-if="errors.short_description" class="text-red-600 mt-1">{{ errors.short_description[0] }}</p>
@@ -123,11 +119,11 @@ const editorOptions = ref({
       [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{'size': ['small', false, 'large', 'huge']}],
       [{'color': [
-          '#000000', '#FF0000', '#00FF00', '#0000FF', '#8A2BE2', '#A52A2A', '#5F9EA0',  // старые цвета
-          '#FFD700', '#FF6347', '#00FFFF', '#FF1493', '#D2691E', '#228B22', '#FF4500',  // добавленные цвета
+          '#000000', '#FF0000', '#00FF00', '#0000FF', '#8A2BE2', '#A52A2A', '#5F9EA0',
+          '#FFD700', '#FF6347', '#00FFFF', '#FF1493', '#D2691E', '#228B22', '#FF4500',
           '#2E8B57', '#8B0000', '#808000', '#BC8F8F', '#3CB371', '#B22222', '#A9A9A9',
           '#F08080', '#C71585', '#D3D3D3', '#00FA9A', '#1E90FF', '#C0C0C0', '#FA8072',
-          '#988058'
+          '#aa8453'
         ]}],
     ],
   },

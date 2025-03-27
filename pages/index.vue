@@ -9,6 +9,14 @@
         </button>
       </nuxt-link>
     </div>
+    <div>
+      <img
+          @click="logout"
+          src="/images/logout.png"
+          alt="Logout"
+          class="cursor-pointer w-10 h-10 dark:invert"
+      />
+    </div>
     <UTable
         :rows="buildings"
         :columns="columns"
@@ -76,6 +84,8 @@ definePageMeta({
   layout: 'navbar',
 });
 
+
+const router = useRouter();
 const isModalOpen = ref(false);
 const selectedBuilding = ref(null);
 const buildings = ref([]);
@@ -105,6 +115,11 @@ const truncate = (text, length) => {
   return text.length > length ? text.slice(0, length) + '...' : text;
 };
 
+const logout = () => {
+  const authToken = useCookie("auth_token");
+  authToken.value = null;
+  router.push("/login");
+};
 
 const openDeleteModal = (building) => {
   selectedBuilding.value = building;

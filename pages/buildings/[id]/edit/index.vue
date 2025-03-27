@@ -10,11 +10,10 @@
             Title <span>*</span>
           </label>
           <client-only>
-            <rich-editor
+            <input
                 contentType="html"
-                v-model:content="building.title"
-                :options="editorOptions"
-                class="text-black"
+                v-model="building.title"
+                class="bg-white text-black w-full p-2 border border-gray-300"
             />
           </client-only>
         </div>
@@ -23,11 +22,10 @@
             Short Description <span>*</span>
           </label>
           <client-only>
-            <rich-editor
+            <input
                 contentType="html"
-                v-model:content="building.short_description"
-                :options="editorOptions"
-                class="text-black"
+                v-model="building.short_description"
+                class="bg-white text-black w-full p-2 border border-gray-300"
             />
           </client-only>
         </div>
@@ -99,21 +97,33 @@ const editorOptions = ref({
       [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{'size': ['small', false, 'large', 'huge']}],
       [{'color': [
-          '#000000', '#FF0000', '#00FF00', '#0000FF', '#8A2BE2', '#A52A2A', '#5F9EA0',  // старые цвета
-          '#FFD700', '#FF6347', '#00FFFF', '#FF1493', '#D2691E', '#228B22', '#FF4500',  // добавленные цвета
+          '#000000', '#FF0000', '#00FF00', '#0000FF', '#8A2BE2', '#A52A2A', '#5F9EA0',
+          '#FFD700', '#FF6347', '#00FFFF', '#FF1493', '#D2691E', '#228B22', '#FF4500',
           '#2E8B57', '#8B0000', '#808000', '#BC8F8F', '#3CB371', '#B22222', '#A9A9A9',
           '#F08080', '#C71585', '#D3D3D3', '#00FA9A', '#1E90FF', '#C0C0C0', '#FA8072',
-            '#988058'
+          '#aa8453'
         ]}],
     ],
   },
   formats: ['bold', 'italic', 'underline', 'size', 'color', 'list'],
 });
 
+
+const stripHtmlTags = (html) => {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.innerText || div.textContent || '';
+};
+
+
 const getBuilding = async () => {
   const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
   if (data.value) {
-    building.value = {...data.value};
+    building.value = {
+      ...data.value,
+      title: stripHtmlTags(data.value.title),
+      short_description: stripHtmlTags(data.value.short_description),
+    };
   }
   if (error.value) {
     console.error('Error fetching building:', error.value);

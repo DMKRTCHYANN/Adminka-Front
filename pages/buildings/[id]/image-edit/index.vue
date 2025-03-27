@@ -38,28 +38,25 @@
             <div v-if="!images.length" class="text-gray-500 text-sm text-center">
               Drag and drop images or click to select
             </div>
-            <div v-else class="grid grid-cols-4 gap-4 mt-4 w-full">
-              <div class="relative">
-                <div
-                    v-for="(img, index) in images"
-                    :key="index"
-                    class="relative group"
-                >
-                  <img
-                      :src="img.preview"
-                      alt="Image Preview"
-                      class="max-h-40 object-contain transition-opacity duration-300 group-hover:opacity-60"
-                  />
-                  <img
-                      src="/images/delete.svg"
-                      alt="Delete Image"
-                      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 cursor-pointer"
-                      @click="removeImage(index)"
-                  />
-                </div>
+            <div v-else class="grid grid-cols-5 gap-4 mt-4 w-full">
+              <div
+                  v-for="(img, index) in images"
+                  :key="index"
+                  class="relative group"
+              >
+                <img
+                    :src="img.preview"
+                    alt="Image Preview"
+                    class="max-h-40 object-contain transition-opacity duration-300 group-hover:opacity-60"
+                />
+                <img
+                    src="/images/delete.svg"
+                    alt="Delete Image"
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 cursor-pointer"
+                    @click="removeImage(index)"
+                />
               </div>
             </div>
-
           </div>
           <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
           <div class="flex justify-center gap-4">
