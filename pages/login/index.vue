@@ -1,10 +1,10 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-200 dark:bg-gray-900">
-    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg dark:bg-gray-700">
-      <h1 class="text-3xl font-extrabold text-center mb-6 dark:text-white">Welcome back!</h1>
+  <div class="flex items-center justify-center min-h-screen bg-[#323a40] ">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg ">
+      <h1 class="text-3xl font-extrabold text-center mb-6  text-black">Welcome back!</h1>
       <div class="space-y-4">
         <div>
-          <p class="dark:text-white">Email</p>
+          <p class="text-black">Email</p>
           <input
               v-model="email"
               class="w-full p-2 border text-black rounded-lg"
@@ -13,7 +13,7 @@
           />
         </div>
         <div>
-          <p class="dark:text-white">Password</p>
+          <p class="text-black">Password</p>
           <div>
             <label class="block text-sm text-black font-medium"></label>
             <PasswordInput v-model="password"/>
@@ -22,7 +22,7 @@
         <div class="flex justify-center">
           <button
               @click="login"
-              class="bg-gray-200 p-3 flex justify-center w-full max-w-[250px] text-gray-800 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-sm  dark:bg-gray-800 dark:text-white"
+              class="bg-gray-200 p-3 flex justify-center w-full max-w-[250px] text-gray-800 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-sm"
               type="button"
           >
             Login
@@ -38,6 +38,10 @@ import {ref} from 'vue';
 import {useRouter} from 'vue-router';
 import { useCookie } from '#app';
 import PasswordInput from "~/compoments/PasswordInput.vue";
+
+definePageMeta({
+  middleware: ["auth"]
+});
 
 const email = ref('');
 const password = ref('');
