@@ -148,7 +148,7 @@
 <!--</script>-->
 <template>
   <div class="min-h-screen">
-    <div>
+    <div class="flex justify-between">
       <nuxt-link :to="'/create'">
         <button
             class="bg-blue-500 p-3 text-white rounded-lg mb-[20px] hover:bg-blue-600 transition-all duration-300 shadow-sm"
@@ -156,16 +156,15 @@
           Create new Building
         </button>
       </nuxt-link>
+      <div>
+        <img
+            @click="logout"
+            src="/images/logout.png"
+            alt="Logout"
+            class="cursor-pointer w-10 h-10 dark:invert"
+        />
+      </div>
     </div>
-    <div>
-      <img
-          @click="logout"
-          src="/images/logout.png"
-          alt="Logout"
-          class="cursor-pointer w-10 h-10 dark:invert"
-      />
-    </div>
-
     <vuedraggable
         v-model="buildings"
         :item-key="'id'"
@@ -177,22 +176,8 @@
             :rows="[element]"
             :columns="columns"
             :ui="{
-            td: {
-              base: 'whitespace-nowrap',
-              padding: 'px-4 py-4',
-              color: 'text-black',
-              font: '',
-              size: 'text-sm',
-              width: 'max-content'
-            },
-            th: {
-              base: 'text-left rtl:text-right',
-              padding: 'px-4 py-3.5',
-              color: 'text-black',
-              font: 'font-semibold',
-              size: 'text-sm',
-              width: 'max-content'
-            },
+            td: { base: 'whitespace-nowrap', padding: 'px-4 py-4', color: 'text-black', size: 'text-sm' },
+            th: { base: 'text-left', padding: 'px-4 py-3.5', color: 'text-black', size: 'text-sm' },
           }"
         >
           <template #actions-data="{ row }">
@@ -215,7 +200,7 @@
             <img
                 v-if="row.bg_image"
                 :src="`http://localhost:8000/storage/${row.bg_image}`"
-                alt="User Image"
+                alt="Building Image"
                 class="w-12 h-12 object-cover"
             />
             <span v-else>No image</span>
@@ -229,7 +214,6 @@
         </UTable>
       </template>
     </vuedraggable>
-
     <Modal
         v-model="isModalOpen"
         :building="selectedBuilding"
@@ -240,95 +224,74 @@
     <UPagination
         v-model="page"
         :page-count="totalPages"
-        :total="buildings.total"
+        :total="totalItems"
         @update:model-value="changePage"
     />
   </div>
 </template>
 <script setup>
 import {ref, onMounted, nextTick} from 'vue';
-import Modal from "~/compoments/Modal.vue";
 import vuedraggable from 'vuedraggable';
+import Modal from "~/compoments/Modal.vue";
 
 definePageMeta({
   layout: 'navbar',
-  middleware: ["auth"]
+  middleware: ['auth'],
 });
 
 const page = ref(1);
 const limit = ref(10);
-const buildings = ref({data: [], total: 0});
+const buildings = ref([]);
 const totalItems = ref(0);
-const router = useRouter();
+const totalPages = ref(1);
 const isModalOpen = ref(false);
 const selectedBuilding = ref(null);
 const columns = [
-  {key: "id", label: "ID", width: "50px"},
-  {key: "title", label: "Title", width: "200px"},
-  {key: "short_description", label: "Short Description", width: "300px"},
-  {key: "bg_image", label: "BG Image", width: "100px"},
-  {key: "actions", label: "Actions", width: "150px"},
+  {key: 'id', label: 'ID'},
+  {key: 'title', label: 'Title'},
+  {key: 'short_description', label: 'Short Description'},
+  {key: 'bg_image', label: 'BG Image'},
+  {key: 'actions', label: 'Actions'},
 ];
-
-// const getBuildings = async () => {
-//   try {
-//     const {data, error} = await useFetch('/api/buildings', {
-//       query: {
-//         page: page.value,
-//         limit: limit.value
-//       }
-//     });
-//     if (data.value) {
-//       buildings.value = data.value.data.data;
-//       totalItems.value = data.value.data.total;
-//     }
-//   } catch (err) {
-//     console.error('Error:', err);
-//   }
-// };
-
 
 const getBuildings = async () => {
   try {
-    const response = await useFetch("/api/buildings", {
-      params: {page: page.value, limit: limit.value},
+    const response = await $fetch("/api/buildings", {
+      params: { page: page.value, limit: limit.value },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     });
     if (response) {
-     buildings.value.data = response.data || [];
-     buildings.value.total = response.totalPages || 0;
-      limit.value = response.per_page || 10;
-      totalPages.value = response.totalPages || Math.ceil(buildings.value.total / limit.value);
+      console.log(response.total)
+      buildings.value = response.data || [];
+      totalItems.value = response.total;
+      limit.value = response.per_page || limit.value;
+      totalPages.value = response.per_page
     } else {
-      buildings.value = {data: [], total: 0};
+      buildings.value = [];
+      totalItems.value = 0;
       totalPages.value = 1;
     }
-  } catch (error) {
-    console.error("Fetch Error:", error);
-    buildings.value = {data: [], total: 0};
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    buildings.value = [];
+    totalItems.value = 0;
     totalPages.value = 1;
   }
 };
 
 
-
-
-
-
-watch([page, limit], getBuildings, {immediate: true});
-
-const totalPages = computed(() => {
-  return Math.ceil(totalItems.value / limit.value);
-});
-
 const onDragEnd = async () => {
   try {
-    const order = buildings.value.map(building => building.id);
+    const order = buildings.value.map((building) => building.id);
     const {error} = await useFetch('/api/buildings/reorder', {
       method: 'POST',
       body: {order},
     });
-    if (error.value) {
-      console.error('Error updating building order:', error.value);
+    if (error) {
+      console.error('Error reordering buildings:', error);
     } else {
       console.log('Buildings reordered successfully');
     }
@@ -343,14 +306,13 @@ const changePage = async (newPage) => {
 };
 
 const truncate = (text, length) => {
-  if (!text) return '';
-  return text.length > length ? text.slice(0, length) + '...' : text;
+  return text?.length > length ? `${text.slice(0, length)}...` : text;
 };
 
 const logout = () => {
-  const authToken = useCookie("auth_token");
+  const authToken = useCookie('auth_token');
   authToken.value = null;
-  router.push("/login");
+  useRouter().push('/login');
 };
 
 const openDeleteModal = (building) => {
@@ -360,20 +322,22 @@ const openDeleteModal = (building) => {
 
 const deleteBuildingHandler = async () => {
   if (!selectedBuilding.value) return;
+
   try {
     const {error} = await useFetch(`/api/buildings/${selectedBuilding.value.id}`, {
       method: 'DELETE',
     });
-    if (error.value) throw error.value;
-    buildings.value = buildings.value.filter(b => b.id !== selectedBuilding.value.id);
+    if (error) throw error;
+    buildings.value = buildings.value.filter(
+        (building) => building.id !== selectedBuilding.value.id
+    );
   } catch (err) {
-    console.error('Error deleting buildings:', err);
+    console.error('Error deleting building:', err);
   } finally {
     isModalOpen.value = false;
     selectedBuilding.value = null;
   }
 };
-
 
 onMounted(async () => {
   await nextTick();

@@ -13,7 +13,16 @@
           />
         </div>
         <div>
-          <p class="text-black">Password</p>
+          <div class="flex justify-between">
+            <p class="text-black">Password</p>
+            <nuxt-link  to="/forgot-password">
+                <span
+                    class="text-blue-700"
+                >
+                  forgot password
+                </span>
+            </nuxt-link>
+          </div>
           <div>
             <label class="block text-sm text-black font-medium"></label>
             <PasswordInput v-model="password"/>
