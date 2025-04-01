@@ -1,45 +1,68 @@
 <template>
-  <div>
-    <h1>Восстановление пароля</h1>
-    <form @submit.prevent="resetPassword">
-      <div>
-        <label for="password">Новый пароль</label>
-        <input v-model="password" type="password" id="password" required />
-      </div>
-      <div>
-        <label for="password_confirmation">Подтверждение пароля</label>
-        <input v-model="password_confirmation" type="password" id="password_confirmation" required />
-      </div>
-      <button type="submit">Сбросить пароль</button>
-    </form>
+  <div class="flex items-center justify-center min-h-screen bg-[#323a40]">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+      <h1 class="text-3xl font-extrabold text-center mb-6 text-black">Reset Password</h1>
+      <p v-if="message" class="text-green-500">{{ message }}</p>
+      <p v-if="error" class="text-red-500">{{ error }}</p>
+      <input
+          v-model="password"
+          type="password"
+          placeholder="New password"
+          class="w-full p-2 border text-black mb-[20px] rounded-lg"
+      />
+      <input
+          v-model="password_confirmation"
+          type="password"
+          placeholder="Confirm password"
+          class="w-full p-2 border text-black mb-[20px] rounded-lg"
+      />
+      <button @click="resetPassword" class="w-full bg-blue-500 text-white py-2 rounded">
+        Reset Password
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useRoute } from 'vue-router'
 import { useFetch } from '#app'
+import { useRouter, useRoute } from '#vue-router'
+
+const route = useRoute()
+const router = useRouter()
 
 const password = ref('')
 const password_confirmation = ref('')
-const router = useRouter()
-const route = useRoute()
+const message = ref('')
+const error = ref('')
+
+const email = ref(route.query.email || '')
+const token = ref(route.query.token || '')
 
 const resetPassword = async () => {
-  const response = await useFetch('/api/reset-password', {
+  message.value = ''
+  error.value = ''
+
+  if (!email.value || !token.value) {
+    error.value = 'Error: Not enough data to reset'
+    return
+  }
+
+  const { data, error: fetchError } = await useFetch('/api/password/reset', {
     method: 'POST',
     body: {
-      token: route.params.token,
+      email: email.value,
+      token: token.value,
       password: password.value,
-      password_confirmation: password_confirmation.value,
-    },
+      password_confirmation: password_confirmation.value
+    }
   })
 
-  if (response.status === 200) {
-    router.push('/login')
+  if (fetchError.value) {
+    error.value = fetchError.value.data.message || 'Error resetting password'
   } else {
-    alert('Что-то пошло не так!')
+    message.value = 'Password successfully reset!'
+    setTimeout(() => router.push('/login'), 2000)
   }
 }
 </script>

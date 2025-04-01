@@ -3,40 +3,44 @@
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg ">
       <h1 class="text-3xl font-extrabold text-center mb-6  text-black">Welcome back!</h1>
       <div class="space-y-4">
-        <div>
-          <p class="text-black">Email</p>
-          <input
-              v-model="email"
-              class="w-full p-2 border text-black rounded-lg"
-              type="text"
-              placeholder="Enter email"
-          />
-        </div>
-        <div>
-          <div class="flex justify-between">
-            <p class="text-black">Password</p>
-            <nuxt-link  to="/forgot-password">
+        <form action="" @submit.prevent="login">
+          <div>
+            <p class="text-black">Email</p>
+            <input
+                v-model="email"
+                class="w-full p-2 border mb-[20px] text-black rounded-lg"
+                type="text"
+                placeholder="Enter email"
+            />
+          </div>
+          <div>
+            <div class="flex justify-between">
+              <p class="text-black">Password</p>
+              <nuxt-link  to="/forgot-password">
                 <span
                     class="text-blue-700"
                 >
                   forgot password
                 </span>
-            </nuxt-link>
+              </nuxt-link>
+            </div>
+            <div>
+              <label class="block text-sm text-black font-medium"></label>
+              <PasswordInput
+                  class="mb-[20px]"
+                  v-model="password"
+              />
+            </div>
           </div>
-          <div>
-            <label class="block text-sm text-black font-medium"></label>
-            <PasswordInput v-model="password"/>
+          <div class="flex justify-center">
+            <button
+                class="bg-gray-200 p-3 flex  justify-center w-full max-w-[250px] text-gray-800 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-sm"
+                type="submit"
+            >
+              Login
+            </button>
           </div>
-        </div>
-        <div class="flex justify-center">
-          <button
-              @click="login"
-              class="bg-gray-200 p-3 flex justify-center w-full max-w-[250px] text-gray-800 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-sm"
-              type="button"
-          >
-            Login
-          </button>
-        </div>
+        </form>
         <p v-if="errorMessage" class="text-red-500 text-center mt-4">{{ errorMessage }}</p>
       </div>
     </div>

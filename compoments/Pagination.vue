@@ -10,7 +10,6 @@
     />
   </div>
 </template>
-
 <script setup>
 import { ref, watch } from 'vue';
 import { useFetch } from '@vueuse/core';

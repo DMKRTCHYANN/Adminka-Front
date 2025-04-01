@@ -1,48 +1,51 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-[#323a40] ">
-    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg ">
-      <h1 class="text-3xl font-extrabold text-center mb-6 text-black">Reset password</h1>
-      <div class="space-y-4">
-        <form @submit.prevent="sendResetLink">
-          <div class="mb-4">
-            <label for="email" class="block text-gray-700 font-medium mb-1">Ваш email</label>
-            <input
-                v-model="email"
-                type="email"
-                id="email"
-                required
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 text-white bg-black focus:ring-blue-500"
-            />
-          </div>
-          <button
-              type="submit"
-              class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
-          >
-            Отправить ссылку для сброса пароля
-          </button>
-        </form>
-      </div>
+  <div class="flex items-center justify-center min-h-screen bg-[#323a40]">
+    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+      <h1 class="text-3xl font-extrabold text-center mb-6 text-black">Password Reset</h1>
+      <p v-if="message" class="text-green-500">{{ message }}</p>
+      <p v-if="error" class="text-red-500">{{ error }}</p>
+      <input
+          v-model="email"
+          type="email"
+          placeholder="Enter your email"
+          class="w-full p-2 border text-black mb-[20px] rounded-lg"
+      />
+      <button @click="sendResetCode" class="w-full bg-blue-500 text-white py-2 rounded">
+        Send Code
+      </button>
     </div>
   </div>
 </template>
+
 <script setup>
-import {ref} from 'vue'
-import {useRouter} from 'vue-router'
-import {useFetch} from '#app'
+import { ref } from 'vue'
+import { useFetch } from '#app'
+import { useRouter } from '#vue-router'
 
 const email = ref('')
+const message = ref('')
+const error = ref('')
 const router = useRouter()
 
-const sendResetLink = async () => {
-  const response = await useFetch('/api/forgot-password', {
+const sendResetCode = async () => {
+  message.value = ''
+  error.value = ''
+  if (!email.value) {
+    error.value = 'Error: Email is required'
+    return
+  }
+  const { data, error: fetchError } = await useFetch('/api/password/request-reset', {
     method: 'POST',
-    body: {email: email.value},
+    body: {email: email.value}
   })
-  if (response.status) {
-    console.log(response)
-    await router.push('/reset-password')
+  if (fetchError.value) {
+    error.value = fetchError.value.data.error
   } else {
-    alert('Что-то пошло не так!')
+    message.value = data.value.message
+    await router.push({
+      name: 'code-verify',
+      query: {email: email.value}
+    })
   }
 }
 </script>
