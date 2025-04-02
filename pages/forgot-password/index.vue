@@ -18,9 +18,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useFetch } from '#app'
-import { useRouter } from '#vue-router'
+import {ref} from 'vue'
+import {useFetch} from '#app'
+import {useRouter} from '#vue-router'
 
 const email = ref('')
 const message = ref('')
@@ -34,7 +34,7 @@ const sendResetCode = async () => {
     error.value = 'Error: Email is required'
     return
   }
-  const { data, error: fetchError } = await useFetch('/api/password/request-reset', {
+  const {data, error: fetchError} = await useFetch('/api/password/request-reset', {
     method: 'POST',
     body: {email: email.value}
   })

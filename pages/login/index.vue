@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-[#323a40] ">
+  <div class="flex items-center justify-center min-h-screen bg-gray-700">
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg ">
       <h1 class="text-3xl font-extrabold text-center mb-6  text-black">Welcome back!</h1>
       <div class="space-y-4">
@@ -20,7 +20,7 @@
                 <span
                     class="text-blue-700"
                 >
-                  forgot password
+                  forgot password?
                 </span>
               </nuxt-link>
             </div>
@@ -32,6 +32,7 @@
               />
             </div>
           </div>
+
           <div class="flex justify-center">
             <button
                 class="bg-gray-200 p-3 flex  justify-center w-full max-w-[250px] text-gray-800 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 transition-all duration-300 shadow-sm"
