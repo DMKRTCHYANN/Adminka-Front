@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-[#323a40]">
-    <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+  <div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-[500px] p-[30px]  bg-white rounded-lg shadow-lg overflow-hidden">
       <h1 class="text-3xl font-extrabold text-center mb-6 text-black">Code Verification</h1>
       <p v-if="message" class="text-green-500">{{ message }}</p>
       <p v-if="error" class="text-red-500">{{ error }}</p>
@@ -8,7 +8,7 @@
           v-model="code"
           type="text"
           placeholder="Enter the code from the email"
-          class="w-full p-2 border text-black mb-[20px] rounded-lg"
+          class="w-full p-3 border border-gray-300 rounded-lg mb-[20px] text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
       />
       <button @click="verifyCode" class="w-full bg-blue-500 text-white py-2 rounded">
         Verify Code

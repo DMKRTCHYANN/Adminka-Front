@@ -28,7 +28,6 @@
     <vuedraggable
         v-model="buildings"
         :item-key="'id'"
-        :move="onMove"
         @end="onDragEnd"
     >
       <template #item="{ element }">
@@ -66,10 +65,10 @@
             <span v-else>No image</span>
           </template>
           <template #title-data="{ row }">
-            <div v-html="row.title"></div>
+            <div v-html="truncate(row.title, 3)"></div>
           </template>
           <template #short_description-data="{ row }">
-            <div v-html="truncate(row.short_description, 15)"></div>
+            <div v-html="truncate(row.short_description, 10)"></div>
           </template>
         </UTable>
       </template>
@@ -116,41 +115,10 @@ const columns = [
   {key: 'bg_image', label: 'BG Image'},
   {key: 'actions', label: 'Actions'},
 ];
-//
-// const getBuildings = async () => {
-//   try {
-//     const response = await $fetch("/api/buildings", {
-//       params: {page: page.value, limit: limit.value,  direction: sortOrder.value},
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//     });
-//     if (response) {
-//       buildings.value = response.data || [];
-//       totalItems.value = response.total;
-//       limit.value = response.per_page || limit.value;
-//       totalPages.value = response.per_page
-//     } else {
-//       buildings.value = [];
-//       totalItems.value = 0;
-//       totalPages.value = 1;
-//     }
-//   } catch (err) {
-//     console.error("Unexpected error:", err);
-//     buildings.value = [];
-//     totalItems.value = 0;
-//     totalPages.value = 1;
-//   }
-// };
-
 
 const getBuildings = async () => {
   try {
-    const params = {
-      page: page.value,
-      limit: limit.value,
-    };
+    const params = {page: page.value, limit: limit.value, order: sortOrder.value};
     if (sortBy.value === 'id') {
       params.order = 'id';
       params.direction = sortOrder.value;
@@ -165,9 +133,8 @@ const getBuildings = async () => {
   }
 };
 
-
 const toggleSortOrder = () => {
-  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  sortOrder.value = sortOrder.value === 'asc' ? 'id' : 'asc';
   getBuildings();
 };
 
@@ -176,16 +143,13 @@ const onDragEnd = async (event) => {
     const {oldIndex, newIndex} = event;
     if (oldIndex === newIndex) return;
 
-    const movedBuilding = buildings.value[oldIndex];
-    const targetBuilding = buildings.value[newIndex];
-
-
     let url = '';
-    if (oldIndex < newIndex) {
-      url = `/api/buildings/${targetBuilding.id}/moveAfter/${movedBuilding.id}`;
+    if (newIndex > oldIndex) {
+      url = `/api/buildings/${buildings.value[newIndex].id}/moveAfter/${buildings.value[newIndex - 1].id}`;
     } else {
-      url = `/api/buildings/${targetBuilding.id}/moveBefore/${movedBuilding.id}`;
+      url = `/api/buildings/${buildings.value[newIndex].id}/moveBefore/${buildings.value[newIndex + 1].id}`;
     }
+    console.log('Request URL:', url);
     const response = await useFetch(url, {
       method: 'PUT',
       headers: {Accept: "application/json"},

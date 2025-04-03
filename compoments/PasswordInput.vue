@@ -2,7 +2,7 @@
   <div class="relative">
     <input
         :type="isPasswordVisible ? 'text' : 'password'"
-        class="w-full p-2 border text-black rounded-lg"
+        class="w-full p-3 border border-gray-300 rounded-lg mb-[15px] text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         :placeholder="placeholder"
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
