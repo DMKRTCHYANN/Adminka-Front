@@ -11,8 +11,8 @@
   </div>
 </template>
 <script setup>
-import { ref, watch } from 'vue';
-import { useFetch } from '@vueuse/core';
+import {ref, watch} from 'vue';
+import {useFetch} from '@vueuse/core';
 
 const props = defineProps({
   modelValue: {
@@ -40,7 +40,6 @@ const fetchUsers = async () => {
         limit: props.buildingsPerPage,
       },
     }).json();
-
     if (data.value) {
       buildings.value = data.value.users;
       total.value = data.value.total;

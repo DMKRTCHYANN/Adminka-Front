@@ -40,14 +40,12 @@
             class="cursor-pointer w-7 h-7"
             @click="handleDelete(row)"
         />
-
       </div>
     </div>
   </div>
 </template>
-
 <script setup>
-import { defineProps, defineEmits, computed } from 'vue';
+import {defineProps, defineEmits, computed} from 'vue';
 
 const props = defineProps({
   rows: {
