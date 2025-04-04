@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen">
-    <div class="flex justify-between">
+    <div class="flex justify-between items-center mb-6">
       <nuxt-link :to="'/create'">
         <button
-            class="bg-blue-500 p-3 text-white rounded-lg mb-[20px] hover:bg-blue-600 transition-all duration-300 shadow-sm"
+            class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm"
         >
           Create new Building
         </button>
@@ -17,75 +17,83 @@
         />
       </div>
     </div>
-    <div class="flex justify-start mb-4">
-      <button
-          @click="toggleSortOrder"
-          class="bg-gray-300 p-2 rounded hover:bg-gray-400"
-      >
-        {{ sortBy === 'id' ? `Sorted by ID (${sortOrder})` : 'Custom Order' }}
-      </button>
-    </div>
-    <vuedraggable
-        v-model="buildings"
-        :item-key="'id'"
-        @end="onDragEnd"
-    >
-      <template #item="{ element }">
-        <UTable
-            :rows="[element]"
-            :columns="columns"
-            :ui="{
-            td: { base: 'whitespace-nowrap', padding: 'px-4 py-4', color: 'text-black', size: 'text-sm' },
-            th: { base: 'text-left', padding: 'px-4 py-3.5', color: 'text-black', size: 'text-sm' },
-          }"
-        >
-          <template #actions-data="{ row }">
-            <div class="flex gap-1">
-              <NuxtLink :to="`/buildings/${row.id}/edit`">
-                <img src="/images/edit.svg" alt="Edit" class="cursor-pointer w-7 h-7"/>
-              </NuxtLink>
+    <div class="relative overflow-x-auto shadow-md rounded-lg">
+      <table class="w-full text-sm text-left text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+        <tr>
+          <th v-for="column in columns" :key="column.key" class="px-4 py-3">
+            <div v-if="column.key === 'id'" class="flex items-center gap-2">
+              {{ column.label }}
               <img
-                  src="/images/delete.svg"
-                  alt="Delete"
-                  class="cursor-pointer w-7 h-7"
-                  @click="openDeleteModal(row)"
+                  src="/images/sort.png"
+                  alt="Sort"
+                  class="cursor-pointer w-4 h-4 drag-handle hover:opacity-75"
+                  @click="toggleSortOrder"
               />
-              <NuxtLink :to="`/buildings/${row.id}/image-edit`">
-                <img src="/images/image.png" alt="Image" class="cursor-pointer w-7 h-7"/>
-              </NuxtLink>
             </div>
+            <span v-else>{{ column.label }}</span>
+          </th>
+        </tr>
+        </thead>
+        <vuedraggable
+            v-model="buildings"
+            tag="tbody"
+            :item-key="'id'"
+            :handle="'.drag-handle'"
+            @end="onDragEnd"
+        >
+          <template #item="{ element }">
+            <tr class="bg-white border-b hover:bg-gray-50">
+              <td class="px-4 py-4">{{ element.id }}</td>
+              <td class="px-4 py-4" v-html="element.title"></td>
+              <td class="px-4 py-4">
+                <img
+                    v-if="element.bg_image"
+                    :src="`http://localhost:8000/storage/${element.bg_image}`"
+                    alt="Building Image"
+                    class="w-[70px] h-[70px] object-cover rounded"
+                />
+                <span v-else class="text-gray-400">No image</span>
+              </td>
+              <td class="px-4 py-4">
+                <div class="flex gap-3 items-center">
+                  <NuxtLink :to="`/buildings/${element.id}/edit`">
+                    <img src="/images/edit.svg" alt="Edit" class="cursor-pointer w-7 h-7 hover:opacity-75"/>
+                  </NuxtLink>
+                  <img
+                      src="/images/delete.svg"
+                      alt="Delete"
+                      class="cursor-pointer w-7 h-7 hover:opacity-75"
+                      @click="openDeleteModal(element)"
+                  />
+                  <NuxtLink :to="`/buildings/${element.id}/image-edit`">
+                    <img src="/images/image.png" alt="Image" class="cursor-pointer w-7 h-7 hover:opacity-75"/>
+                  </NuxtLink>
+                  <img
+                      src="/images/move.png"
+                      alt="Move"
+                      class="cursor-pointer w-7 h-7 drag-handle hover:opacity-75"
+                  >
+                </div>
+              </td>
+            </tr>
           </template>
-          <template #bg_image-data="{ row }">
-            <img
-                v-if="row.bg_image"
-                :src="`http://localhost:8000/storage/${row.bg_image}`"
-                alt="Building Image"
-                class="w-12 h-12 object-cover"
-            />
-            <span v-else>No image</span>
-          </template>
-          <template #title-data="{ row }">
-            <div v-html="truncate(row.title, 3)"></div>
-          </template>
-          <template #short_description-data="{ row }">
-            <div v-html="truncate(row.short_description, 10)"></div>
-          </template>
-        </UTable>
-      </template>
-    </vuedraggable>
+        </vuedraggable>
+      </table>
+    </div>
     <Modal
         v-model="isModalOpen"
         :building="selectedBuilding"
         @confirm="deleteBuildingHandler"
     />
-  </div>
-  <div class="flex justify-center gap-4 mt-4">
-    <UPagination
-        v-model="page"
-        :page-count="totalPages"
-        :total="totalItems"
-        @update:model-value="changePage"
-    />
+    <div class="flex justify-center gap-4 mt-6 pb-6">
+      <UPagination
+          v-model="page"
+          :page-count="totalPages"
+          :total="totalItems"
+          @update:model-value="changePage"
+      />
+    </div>
   </div>
 </template>
 <script setup>
@@ -109,12 +117,16 @@ const isModalOpen = ref(false);
 const selectedBuilding = ref(null);
 const sortOrder = ref('asc');
 const columns = [
-  {key: 'id', label: 'ID'},
+  {key: 'id', label: 'ID', sortable: true },
   {key: 'title', label: 'Title'},
-  {key: 'short_description', label: 'Short Description'},
   {key: 'bg_image', label: 'BG Image'},
   {key: 'actions', label: 'Actions'},
 ];
+
+const toggleSortOrder = () => {
+  sortOrder.value = sortOrder.value === 'asc' ? 'id' : 'asc';
+  getBuildings();
+};
 
 const getBuildings = async () => {
   try {
@@ -133,32 +145,23 @@ const getBuildings = async () => {
   }
 };
 
-const toggleSortOrder = () => {
-  sortOrder.value = sortOrder.value === 'asc' ? 'id' : 'asc';
-  getBuildings();
-};
-
 const onDragEnd = async (event) => {
   try {
     const {oldIndex, newIndex} = event;
     if (oldIndex === newIndex) return;
-
     let url = '';
     if (newIndex > oldIndex) {
       url = `/api/buildings/${buildings.value[newIndex].id}/moveAfter/${buildings.value[newIndex - 1].id}`;
     } else {
       url = `/api/buildings/${buildings.value[newIndex].id}/moveBefore/${buildings.value[newIndex + 1].id}`;
     }
-    console.log('Request URL:', url);
     const response = await useFetch(url, {
       method: 'PUT',
       headers: {Accept: "application/json"},
     });
-
     if (response.error) {
       console.error('Error moving building:', response.error);
     } else {
-      console.log('Building moved successfully');
       await getBuildings();
     }
   } catch (err) {
@@ -166,14 +169,9 @@ const onDragEnd = async (event) => {
   }
 };
 
-
 const changePage = async (newPage) => {
   page.value = newPage;
   await getBuildings();
-};
-
-const truncate = (text, length) => {
-  return text?.length > length ? `${text.slice(0, length)}...` : text;
 };
 
 const logout = () => {
