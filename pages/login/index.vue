@@ -3,7 +3,6 @@
     <div v-if="isLoading" class="fixed inset-0 flex items-center justify-center bg-[#323a40] z-50">
       <img src="/images/logo.svg" alt="Logo Image" class="animate-pulse w-60 h-60">
     </div>
-
     <div v-else class="flex w-full max-w-5xl bg-white rounded-lg shadow-lg overflow-hidden">
       <div class="w-1/2 bg-gray-600 p-8 flex items-center justify-center">
         <img src="/images/logo.svg" alt="Login Image"/>
@@ -44,11 +43,10 @@
     </div>
   </div>
 </template>
-
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCookie } from '#app';
+import {ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useCookie} from '#app';
 import PasswordInput from "~/compoments/PasswordInput.vue";
 
 definePageMeta({
@@ -60,13 +58,12 @@ const password = ref('');
 const errorMessage = ref(null);
 const isLoading = ref(false);
 const router = useRouter();
-
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 
 const login = async () => {
   errorMessage.value = null;
   isLoading.value = true;
-
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
@@ -74,7 +71,7 @@ const login = async () => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: email.value, password: password.value }),
+      body: JSON.stringify({email: email.value, password: password.value}),
       credentials: 'include',
     });
     if (!response.ok) {

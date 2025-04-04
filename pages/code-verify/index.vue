@@ -16,7 +16,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import {ref} from 'vue'
 import {useFetch} from '#app'
@@ -24,7 +23,6 @@ import {useRouter, useRoute} from '#vue-router'
 
 const route = useRoute()
 const router = useRouter()
-
 const code = ref('')
 const message = ref('')
 const error = ref('')
@@ -37,7 +35,6 @@ const verifyCode = async () => {
     error.value = 'Error: Email is missing'
     return
   }
-
   const {data, error: fetchError} = await useFetch('/api/password/verify-code', {
     method: 'POST',
     body: {
@@ -45,7 +42,6 @@ const verifyCode = async () => {
       code: code.value
     }
   })
-
   if (fetchError.value) {
     error.value = fetchError.value.data.message || 'Error verifying the code'
   } else {

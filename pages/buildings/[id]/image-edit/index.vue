@@ -94,10 +94,6 @@ const images = ref([]);
 const building = ref({});
 const buildingImages = ref([]);
 
-const cancelUpdate = () => {
-  router.push('/');
-};
-
 const getBuilding = async () => {
   try {
     const {data: buildingData, error: buildingError} = await useFetch(`/api/buildings/${route.params.id}`);
@@ -130,7 +126,9 @@ const deleteImage = async (index) => {
   }
 };
 
-
+const cancelUpdate = () => {
+  router.push('/');
+};
 
 const handleFileChange = (event) => {
   const selectedFiles = Array.from(event.target.files);

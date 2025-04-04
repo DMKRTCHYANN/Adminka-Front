@@ -24,31 +24,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useFetch } from '#app'
-import { useRouter, useRoute } from '#vue-router'
+import {ref} from 'vue'
+import {useFetch} from '#app'
+import {useRouter, useRoute} from '#vue-router'
 
 const route = useRoute()
 const router = useRouter()
-
 const password = ref('')
 const password_confirmation = ref('')
 const message = ref('')
 const error = ref('')
-
 const email = ref(route.query.email || '')
 const token = ref(route.query.token || '')
 
 const resetPassword = async () => {
   message.value = ''
   error.value = ''
-
   if (!email.value || !token.value) {
     error.value = 'Error: Not enough data to reset'
     return
   }
-
-  const { data, error: fetchError } = await useFetch('/api/password/reset', {
+  const {data, error: fetchError} = await useFetch('/api/password/reset', {
     method: 'POST',
     body: {
       email: email.value,
@@ -57,7 +53,6 @@ const resetPassword = async () => {
       password_confirmation: password_confirmation.value
     }
   })
-
   if (fetchError.value) {
     error.value = fetchError.value.data.message || 'Error resetting password'
   } else {
