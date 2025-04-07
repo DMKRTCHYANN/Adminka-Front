@@ -1,5 +1,6 @@
 @import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
+
 .ql-editor {
     color: #000 !important; 
   }
