@@ -1,5 +1,5 @@
 @import '@vueup/vue-quill/dist/vue-quill.snow.css';
-
+@import url('https://maps.googleapis.com/maps/api/css?v=3.exp&libraries=places');
 
 .ql-editor {
     color: #000 !important; 

@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     modules: [
         'nuxt-proxy', '@nuxt/ui'
     ],
+    runtimeConfig: {
+        public: {
+            googleMapsApiKey: 'AIzaSyAkVQ9GmgG4F6VNlg-xRe4vy6MOS1IWDPI'
+        }
+    },
     nitro: {
         devProxy: {
             "/api/": {
