@@ -49,6 +49,12 @@
                     alt="Image Preview"
                     class="max-h-40 object-contain transition-opacity duration-300 group-hover:opacity-60"
                 />
+                <cropper
+                    v-if="img.preview"
+                    :ref="el => { cropperRefs[index] = el }"
+                    :src="img.preview"
+                    class="w-full h-64 mt-2"
+                />
                 <img
                     src="/images/delete.svg"
                     alt="Delete Image"
@@ -79,9 +85,12 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import {nextTick, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
+import {Cropper} from "vue-advanced-cropper";
+import "vue-advanced-cropper/dist/style.css";
 
 definePageMeta({
   layout: 'navbar',
@@ -91,6 +100,7 @@ const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
 const images = ref([]);
+const cropperRefs = ref([]);
 const building = ref({});
 const buildingImages = ref([]);
 
@@ -113,7 +123,7 @@ const getBuilding = async () => {
 
 const deleteImage = async (index) => {
   try {
-    const { data, error } = await useFetch(`/api/images/${index}`, {
+    const {data, error} = await useFetch(`/api/images/${index}`, {
       method: 'DELETE',
     });
     if (error.value) {
@@ -133,31 +143,59 @@ const cancelUpdate = () => {
 const handleFileChange = (event) => {
   const selectedFiles = Array.from(event.target.files);
   selectedFiles.forEach((file) => {
-    images.value.push({
-      preview: URL.createObjectURL(file),
-      file,
-    });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      images.value.push({
+        preview: e.target.result,
+        file,
+      });
+      cropperRefs.value.push(ref(null));
+    };
+    reader.readAsDataURL(file);
   });
 };
 
 const removeImage = (index) => {
   images.value.splice(index, 1);
+  cropperRefs.value.splice(index, 1);
 };
 
 const updateBuildingImages = async () => {
   const formData = new FormData();
-  images.value.forEach(({file}) => {
-    formData.append('images[]', file);
-  });
   formData.append('building_id', route.params.id);
+  for (let i = 0; i < images.value.length; i++) {
+    const cropper = cropperRefs.value[i];
+    if (cropper) {
+      const result = cropper.getResult();
+      if (result?.canvas) {
+        const blob = await new Promise(resolve =>
+            result.canvas.toBlob(resolve, 'image/jpeg', 0.9)
+        );
+        if (blob) {
+          const file = new File([blob], `cropped_image_${i}.jpg`, {
+            type: blob.type
+          });
+          formData.append('images[]', file);
+        }
+      }
+    } else if (images.value[i]?.file) {
+      formData.append('images[]', images.value[i].file);
+    }
+  }
   try {
-    await useFetch(`/api/images/${route.params.id}`, {
+    const {error} = await useFetch(`/api/images/${route.params.id}`, {
       method: 'POST',
       body: formData,
     });
+
+    if (error.value) {
+      throw new Error(error.value.message || 'Error updating images');
+    }
+
     await router.push('/');
   } catch (err) {
     console.error('Error updating images:', err);
+    alert('Failed to update images. Please check the console for details.');
   }
 };
 
