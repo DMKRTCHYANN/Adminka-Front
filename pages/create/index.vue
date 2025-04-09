@@ -128,13 +128,14 @@ definePageMeta({
   layout: 'navbar'
 })
 
-const markerPosition = ref({ lat: 40.73061, lng: -73.935242 });
+const markerPosition = ref({ lat: 40.378160, lng: 45.177943 });
 const mapOptions = {
   center: markerPosition.value,
   zoom: 12,
 };
 
 const updateMarkerPosition = (event) => {
+  console.log(event)
   markerPosition.value = {
     lat: event.latLng.lat(),
     lng: event.latLng.lng(),
@@ -155,20 +156,13 @@ const createBuilding = async () => {
         }
       }
     }
-    const locationData = {
-      type: "Point",
-      coordinates: [
-        markerPosition.value.lng,
-        markerPosition.value.lat
-      ]
-    };
-    building.value.location = JSON.stringify(locationData);
 
     const formData = new FormData();
     formData.append('title', building.value.title);
     formData.append('short_description', building.value.short_description);
     formData.append('long_description', building.value.long_description);
-    formData.append('location', building.value.location);
+    formData.append('latitude', building.value.location.lat);
+    formData.append('longitude', building.value.location.lng);
     if (building.value.bg_image) {
       formData.append('bg_image', building.value.bg_image);
     }

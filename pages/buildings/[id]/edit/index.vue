@@ -63,6 +63,20 @@
           </div>
           <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
         </div>
+        <div class="mb-6">
+          <GoogleMaps
+              :building="building"
+              v-model:markerPosition="markerPosition"
+              :api-key="$config.public.googleMapsApiKey"
+              :options="mapOptions"
+              style="height: 500px; width: 100%;"
+          >
+            <Marker
+                :options="{ position: markerPosition, draggable: true }"
+                @dragend="updateMarkerPosition"
+            />
+          </GoogleMaps>
+        </div>
         <div class="flex justify-center gap-4">
           <button @click="router.push('/')"
                   class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm">
@@ -81,12 +95,11 @@
 import {onMounted, ref, nextTick} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useFetch} from "#app";
-import {Cropper} from "vue-advanced-cropper";
-import "vue-advanced-cropper/dist/style.css";
+import GoogleMaps from "~/compoments/GoogleMaps.vue";
 
 definePageMeta({
   layout: "navbar",
-});
+})
 
 const route = useRoute();
 const router = useRouter();
@@ -98,7 +111,15 @@ const building = ref({
   short_description: "",
   long_description: "",
   bg_image: "",
+  location: {coordinates: [0, 0]},
 });
+
+
+const markerPosition = ref({ lat: building.value.location.coordinates[0], lng: building.value.location.coordinates[1] });
+const mapOptions = {
+  center: markerPosition.value,
+  zoom: 12,
+};
 
 const editorOptions = ref({
   theme: "snow",
@@ -114,7 +135,7 @@ const editorOptions = ref({
             "#FFD700", "#FF6347", "#00FFFF", "#FF1493", "#D2691E", "#228B22", "#FF4500",
             "#2E8B57", "#8B0000", "#808000", "#BC8F8F", "#3CB371", "#B22222", "#A9A9A9",
             "#F08080", "#C71585", "#D3D3D3", "#00FA9A", "#1E90FF", "#C0C0C0", "#FA8072",
-            "#aa8453"
+            "#aa8453",
           ],
         },
       ],
@@ -122,12 +143,6 @@ const editorOptions = ref({
   },
   formats: ["bold", "italic", "underline", "size", "color", "list"],
 });
-
-const stripHtmlTags = (html) => {
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return div.innerText || div.textContent || "";
-};
 
 const getBuilding = async () => {
   const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
@@ -137,19 +152,29 @@ const getBuilding = async () => {
       title: stripHtmlTags(data.value.title),
       short_description: stripHtmlTags(data.value.short_description),
     };
+    if (building.value.location?.coordinates?.length === 2) {
+
+      markerPosition.value = {
+        lat: building.value.location.coordinates[0],
+        lng: building.value.location.coordinates[1],
+      };
+    } else {
+      markerPosition.value = {lat: 0, lng: 0};
+    }
   }
   if (error.value) {
-    console.error("Error fetching building:", error.value);
-    showError({statusCode: 404, message: "Building not found"});
+    console.error("Ошибка при загрузке здания:", error.value);
+    showError({statusCode: 404, message: "Здание не найдено"});
   }
 };
 
-const handleFileChange = (event) => {
-  selectedFiles.value = event.target.files;
-  if (selectedFiles.value && selectedFiles.value[0]) {
-    imagePreview.value = URL.createObjectURL(selectedFiles.value[0]);
-  }
+
+const stripHtmlTags = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.innerText || div.textContent || "";
 };
+
 
 const updateBuilding = async () => {
   try {
@@ -158,6 +183,8 @@ const updateBuilding = async () => {
     formData.append("title", building.value.title);
     formData.append("short_description", building.value.short_description);
     formData.append("long_description", building.value.long_description);
+    formData.append('latitude', building.value.location.lat);
+    formData.append('longitude', building.value.location.lng);
     if (cropperRef.value) {
       const canvas = cropperRef.value.getResult()?.canvas;
       if (canvas) {
@@ -188,6 +215,13 @@ const updateBuilding = async () => {
       URL.revokeObjectURL(imagePreview.value);
     }
   }
+};
+
+const updateMarkerPosition = (event) => {
+  markerPosition.value = {
+    lat: event.latLng.lat(),
+    lng: event.latLng.lng(),
+  };
 };
 
 onMounted(async () => {

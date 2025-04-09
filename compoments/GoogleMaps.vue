@@ -1,6 +1,6 @@
 <template>
   <GoogleMap
-      :api-key="apiKey"
+      :api-key="''"
       style="width: 100%; height: 500px"
       :center="center"
       :zoom="15"
@@ -13,24 +13,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { GoogleMap, Marker } from 'vue3-google-map'
+import { defineProps, ref, watchEffect } from 'vue';
+import { GoogleMap, Marker } from 'vue3-google-map';
 
-const apiKey = 'AIzaSyAkVQ9GmgG4F6VNlg-xRe4vy6MOS1IWDPI'
+defineProps({
+  building: {
+    type: Object,
+    required: true,
+  },
+});
 
-const center = ref({ lat: 40.689247, lng: -74.044502 })
-
+const emit = defineEmits(['update:modelValue'])
+const center = ref({ lat: 44.197996, lng: 44.477762 });
 const markerOptions = ref({
   position: center.value,
   draggable: true,
   label: '',
   title: 'Drag me to select a location',
-})
+});
 
 const onMarkerDragEnd = (event) => {
-  const newPosition = event.latLng
-  center.value = { lat: newPosition.lat(), lng: newPosition.lng() }
-  markerOptions.value.position = center.value
-  console.log('New coordinates:', center.value)
-}
+  const newPosition = event.latLng;
+  emit('update:modelValue', { lat: newPosition.lat(), lng: newPosition.lng() })
+};
 </script>
