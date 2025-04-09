@@ -128,14 +128,21 @@ definePageMeta({
   layout: 'navbar'
 })
 
+<<<<<<< HEAD
 const markerPosition = ref({ lat: 40.378160, lng: 45.177943 });
+=======
+const markerPosition = ref({ lat: 40.73061, lng: -73.935242 });
+>>>>>>> dff5108171d36e2ef86f73c7ac9f717b0e4d8541
 const mapOptions = {
   center: markerPosition.value,
   zoom: 12,
 };
 
 const updateMarkerPosition = (event) => {
+<<<<<<< HEAD
   console.log(event)
+=======
+>>>>>>> dff5108171d36e2ef86f73c7ac9f717b0e4d8541
   markerPosition.value = {
     lat: event.latLng.lat(),
     lng: event.latLng.lng(),
@@ -156,13 +163,28 @@ const createBuilding = async () => {
         }
       }
     }
+<<<<<<< HEAD
+=======
+    const locationData = {
+      type: "Point",
+      coordinates: [
+        markerPosition.value.lng,
+        markerPosition.value.lat
+      ]
+    };
+    building.value.location = JSON.stringify(locationData);
+>>>>>>> dff5108171d36e2ef86f73c7ac9f717b0e4d8541
 
     const formData = new FormData();
     formData.append('title', building.value.title);
     formData.append('short_description', building.value.short_description);
     formData.append('long_description', building.value.long_description);
+<<<<<<< HEAD
     formData.append('latitude', building.value.location.lat);
     formData.append('longitude', building.value.location.lng);
+=======
+    formData.append('location', building.value.location);
+>>>>>>> dff5108171d36e2ef86f73c7ac9f717b0e4d8541
     if (building.value.bg_image) {
       formData.append('bg_image', building.value.bg_image);
     }
