@@ -46,8 +46,13 @@
           <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
           <div
               class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer">
-            <input id="file" type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer"
-                   @change="handleFileChange"/>
+            <input
+                id="file"
+                type="file"
+                accept="image/*"
+                class="absolute inset-0 opacity-0 cursor-pointer"
+                @change="handleFileChange"
+            />
             <div v-if="!imagePreview && !building.bg_image" class="text-gray-500 text-sm text-center">
               Drag and drop an image or click to select
             </div>
@@ -65,15 +70,15 @@
         </div>
         <div class="mb-6">
           <GoogleMaps
+              :api-key="$config.public.googleMapsApiKey"
               :building="building"
               v-model:markerPosition="markerPosition"
-              :api-key="$config.public.googleMapsApiKey"
               :options="mapOptions"
               style="height: 500px; width: 100%;"
           >
             <Marker
                 :options="{ position: markerPosition, draggable: true }"
-                @dragend="updateMarkerPosition"
+                @dragend="onMarkerDragEnd"
             />
           </GoogleMaps>
         </div>
@@ -121,6 +126,11 @@ const mapOptions = {
   zoom: 12,
 };
 
+const onMarkerDragEnd = (newPosition) => {
+  alert(12)
+  markerPosition.value = newPosition;
+};
+
 const editorOptions = ref({
   theme: "snow",
   modules: {
@@ -146,20 +156,21 @@ const editorOptions = ref({
 
 const getBuilding = async () => {
   const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
+  console.log(building.value.location.coordinates)
   if (data.value) {
-    building.value = {
-      ...data.value,
-      title: stripHtmlTags(data.value.title),
-      short_description: stripHtmlTags(data.value.short_description),
-    };
+    building.value = data.value;
+    //   building.value = {
+  //     ...data.value,
+  //     title: stripHtmlTags(data.value.title),
+  //     short_description: stripHtmlTags(data.value.short_description),
+  //   };
     if (building.value.location?.coordinates?.length === 2) {
-
       markerPosition.value = {
-        lat: building.value.location.coordinates[0],
+        lat: building.value.location.coordinates[0], // Adjust indices if necessary
         lng: building.value.location.coordinates[1],
       };
     } else {
-      markerPosition.value = {lat: 0, lng: 0};
+      markerPosition.value = {lat: 11.17, lng: 0};
     }
   }
   if (error.value) {
@@ -168,13 +179,19 @@ const getBuilding = async () => {
   }
 };
 
+watch(
+    markerPosition,
+    (newPosition) => {
+      building.value.location.coordinates = [newPosition.lat, newPosition.lng];
+    },
+    { deep: true }
+);
 
 const stripHtmlTags = (html) => {
   const div = document.createElement("div");
   div.innerHTML = html;
   return div.innerText || div.textContent || "";
 };
-
 
 const updateBuilding = async () => {
   try {
@@ -183,8 +200,8 @@ const updateBuilding = async () => {
     formData.append("title", building.value.title);
     formData.append("short_description", building.value.short_description);
     formData.append("long_description", building.value.long_description);
-    formData.append('latitude', building.value.location.lat);
-    formData.append('longitude', building.value.location.lng);
+    formData.append('latitude', markerPosition.value.lat);
+    formData.append('longitude', markerPosition.value.lng);
     if (cropperRef.value) {
       const canvas = cropperRef.value.getResult()?.canvas;
       if (canvas) {
@@ -202,6 +219,7 @@ const updateBuilding = async () => {
     const {data, error} = await useFetch(`/api/buildings/${route.params.id}`, {
       method: "POST",
       body: formData,
+      headers: {Accept: "application/json"},
     });
     if (error.value) {
       throw new Error(error.value.message || "Error updating building");
@@ -215,13 +233,6 @@ const updateBuilding = async () => {
       URL.revokeObjectURL(imagePreview.value);
     }
   }
-};
-
-const updateMarkerPosition = (event) => {
-  markerPosition.value = {
-    lat: event.latLng.lat(),
-    lng: event.latLng.lng(),
-  };
 };
 
 onMounted(async () => {
