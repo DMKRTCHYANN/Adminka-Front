@@ -5,15 +5,16 @@
         <h1 class="text-xl text-white p-4">Edit Building</h1>
       </div>
       <div class="p-4">
+        <!-- Title -->
         <div class="mb-4">
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
             Title <span>*</span>
           </label>
           <client-only>
             <input
-                contentType="html"
+                id="title"
                 v-model="building.title"
-                class="bg-white text-black w-full p-2 border border-gray-300"
+                class="bg-white text-black w-full p-2 border"
             />
           </client-only>
         </div>
@@ -23,7 +24,7 @@
           </label>
           <client-only>
             <input
-                contentType="html"
+                id="short_description"
                 v-model="building.short_description"
                 class="bg-white text-black w-full p-2 border border-gray-300"
             />
@@ -45,7 +46,8 @@
         <div class="mb-6">
           <label for="file" class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
           <div
-              class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer">
+              class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer"
+          >
             <input
                 id="file"
                 type="file"
@@ -61,34 +63,37 @@
                 ref="cropperRef"
                 :src="imagePreview"
                 class="w-full h-64"
+                :stencil-props="{aspectRatio: 16 / 9}"
+                :transformations.sync="cropperTransformations"
             />
-            <img v-if="building.bg_image && !imagePreview"
-                 :src="`http://localhost:8000/storage/${building.bg_image}`" alt="Image Preview"
-                 class="max-h-40 object-contain mt-4"/>
+            <img
+                v-else-if="building.bg_image"
+                :src="`http://localhost:8000/storage/${building.bg_image}`"
+                alt="Stored Image"
+                class="max-h-40 object-contain mt-4"
+            />
           </div>
           <p class="text-black p-[10px]">Use only JPEG, PNG, JPG, GIF</p>
         </div>
         <div class="mb-6">
-          <GoogleMaps
+          <LocationSelector
+              v-if="markerPosition"
               :api-key="$config.public.googleMapsApiKey"
-              :building="building"
-              v-model:markerPosition="markerPosition"
-              :options="mapOptions"
+              v-model="markerPosition"
               style="height: 500px; width: 100%;"
-          >
-            <Marker
-                :options="{ position: markerPosition, draggable: true }"
-                @dragend="onMarkerDragEnd"
-            />
-          </GoogleMaps>
+          />
         </div>
         <div class="flex justify-center gap-4">
-          <button @click="router.push('/')"
-                  class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm">
+          <button
+              @click="router.push('/')"
+              class="bg-gray-500 p-3 text-white rounded-lg hover:bg-gray-600 transition-all duration-300 shadow-sm"
+          >
             Cancel
           </button>
-          <button @click="updateBuilding"
-                  class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm">
+          <button
+              @click="updateBuilding"
+              class="bg-blue-500 p-3 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-sm"
+          >
             Save Changes
           </button>
         </div>
@@ -97,100 +102,75 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref, nextTick} from "vue";
+import {ref, watch, onMounted, nextTick} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useFetch} from "#app";
-import GoogleMaps from "~/compoments/GoogleMaps.vue";
+import LocationSelector from "~/compoments/LocationSelector.vue";
+import {Cropper} from "vue-advanced-cropper";
 
 definePageMeta({
   layout: "navbar",
-})
+});
 
 const route = useRoute();
 const router = useRouter();
 const selectedFiles = ref(null);
 const imagePreview = ref(null);
+const cropperTransformations = ref({});
+const markerPosition = ref(null);
 const cropperRef = ref(null);
 const building = ref({
   title: "",
   short_description: "",
   long_description: "",
   bg_image: "",
-  location: {coordinates: [0, 0]},
+  location: {coordinates: []},
 });
-
-
-const markerPosition = ref({ lat: building.value.location.coordinates[0], lng: building.value.location.coordinates[1] });
-const mapOptions = {
-  center: markerPosition.value,
-  zoom: 12,
-};
-
-const onMarkerDragEnd = (newPosition) => {
-  alert(12)
-  markerPosition.value = newPosition;
-};
-
 const editorOptions = ref({
   theme: "snow",
   modules: {
     toolbar: [
       ["bold", "italic", "underline"],
-      [{list: "ordered"}, {list: "bullet"}, {list: "check"}],
+      [{list: "ordered"}, {list: "bullet"}],
       [{size: ["small", false, "large", "huge"]}],
-      [
-        {
-          color: [
-            "#000000", "#FF0000", "#00FF00", "#0000FF", "#8A2BE2", "#A52A2A", "#5F9EA0",
-            "#FFD700", "#FF6347", "#00FFFF", "#FF1493", "#D2691E", "#228B22", "#FF4500",
-            "#2E8B57", "#8B0000", "#808000", "#BC8F8F", "#3CB371", "#B22222", "#A9A9A9",
-            "#F08080", "#C71585", "#D3D3D3", "#00FA9A", "#1E90FF", "#C0C0C0", "#FA8072",
-            "#aa8453",
-          ],
-        },
-      ],
+      [{color: ["#000000", "#FF0000", "#00FF00", "#0000FF"]}],
     ],
   },
-  formats: ["bold", "italic", "underline", "size", "color", "list"],
 });
-
-const getBuilding = async () => {
-  const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
-  console.log(building.value.location.coordinates)
-  if (data.value) {
-    building.value = data.value;
-    //   building.value = {
-  //     ...data.value,
-  //     title: stripHtmlTags(data.value.title),
-  //     short_description: stripHtmlTags(data.value.short_description),
-  //   };
-    if (building.value.location?.coordinates?.length === 2) {
-      markerPosition.value = {
-        lat: building.value.location.coordinates[0], // Adjust indices if necessary
-        lng: building.value.location.coordinates[1],
-      };
-    } else {
-      markerPosition.value = {lat: 11.17, lng: 0};
-    }
-  }
-  if (error.value) {
-    console.error("Ошибка при загрузке здания:", error.value);
-    showError({statusCode: 404, message: "Здание не найдено"});
-  }
-};
 
 watch(
     markerPosition,
     (newPosition) => {
       building.value.location.coordinates = [newPosition.lat, newPosition.lng];
     },
-    { deep: true }
+    {deep: true}
 );
 
-const stripHtmlTags = (html) => {
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return div.innerText || div.textContent || "";
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    imagePreview.value = URL.createObjectURL(file);
+    selectedFiles.value = file;
+  }
+};
+
+const getBuilding = async () => {
+  const {data, error} = await useFetch(`/api/buildings/${route.params.id}`);
+  if (data.value) {
+    building.value = data.value;
+    if (building.value.location?.coordinates?.length === 2) {
+      markerPosition.value = {
+        lat: building.value.location.coordinates[1],
+        lng: building.value.location.coordinates[0],
+      };
+    } else {
+      markerPosition.value = {lat: 40.198425, lng: 44.479263};
+    }
+  }
+  if (error.value) {
+    console.error("Error fetching building:", error.value);
+    router.push({name: "NotFound"});
+  }
 };
 
 const updateBuilding = async () => {
@@ -200,38 +180,31 @@ const updateBuilding = async () => {
     formData.append("title", building.value.title);
     formData.append("short_description", building.value.short_description);
     formData.append("long_description", building.value.long_description);
-    formData.append('latitude', markerPosition.value.lat);
-    formData.append('longitude', markerPosition.value.lng);
-    if (cropperRef.value) {
+    formData.append("latitude", markerPosition.value.lat);
+    formData.append("longitude", markerPosition.value.lng);
+    if (cropperRef.value && cropperTransformations.value) {
       const canvas = cropperRef.value.getResult()?.canvas;
       if (canvas) {
-        const blob = await new Promise((resolve) =>
-            canvas.toBlob(resolve, "image/jpeg")
-        );
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg"));
         if (blob) {
-          const file = new File([blob], "cropped_image.jpg", {type: blob.type});
-          formData.append("bg_image", file);
+          const croppedFile = new File([blob], "cropped_image.jpg", {type: blob.type});
+          formData.append("bg_image", croppedFile);
         }
       }
-    } else if (selectedFiles.value?.[0]) {
-      formData.append("bg_image", selectedFiles.value[0]);
+    } else if (selectedFiles.value) {
+      formData.append("bg_image", selectedFiles.value);
     }
     const {data, error} = await useFetch(`/api/buildings/${route.params.id}`, {
       method: "POST",
       body: formData,
-      headers: {Accept: "application/json"},
     });
-    if (error.value) {
-      throw new Error(error.value.message || "Error updating building");
-    }
-    await router.push("/");
+    if (error.value) throw new Error(error.value.message);
+    router.push("/");
   } catch (error) {
-    console.error("Update error:", error.message);
-    alert("Failed to update building. Please check the console for details.");
+    console.error("Error updating building:", error.message);
+    alert("Failed to update building.");
   } finally {
-    if (imagePreview.value) {
-      URL.revokeObjectURL(imagePreview.value);
-    }
+    if (imagePreview.value) URL.revokeObjectURL(imagePreview.value);
   }
 };
 
@@ -240,8 +213,8 @@ onMounted(async () => {
   await getBuilding();
 });
 </script>
-
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap");
 @import "https://cdn.quilljs.com/1.3.7/quill.snow.css";
 </style>
+

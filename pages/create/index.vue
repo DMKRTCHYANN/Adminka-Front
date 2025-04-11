@@ -72,12 +72,17 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Select Building Location
           </label>
-          <GoogleMaps
-              v-model:markerPosition="building.location"
+          <GoogleMap
               :api-key="$config.public.googleMapsApiKey"
-              :options="mapOptions"
-              style="height: 500px; width: 100%;"
-          />
+              style="width: 100%; height: 500px"
+              :center="markerPosition"
+              :zoom="12"
+          >
+            <Marker
+                :options="markerOptions"
+                @dragend="onMarkerDragEnd"
+            />
+          </GoogleMap>
         </div>
         <div class="flex justify-center gap-4 mb-[40px]">
           <button
@@ -99,12 +104,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useFetch } from '#app';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import GoogleMaps from "~/compoments/GoogleMaps.vue";
+import { GoogleMap, Marker } from "vue3-google-map";
+
+definePageMeta({
+  layout: "navbar",
+});
+
 
 const router = useRouter();
 const errors = ref({});
@@ -116,13 +125,19 @@ const building = ref({
   short_description: '',
   long_description: '',
   bg_image: '',
-  location: null,
+  location: { coordinates: [40.180438, 44.488690] },
 });
 
-definePageMeta({
-  layout: 'navbar'
-})
 
+const markerPosition = ref({
+  lat: building.value.location.coordinates[0],
+  lng: building.value.location.coordinates[1],
+});
+
+const markerOptions = ref({
+  position: markerPosition.value,
+  draggable: true,
+});
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -136,18 +151,18 @@ const handleFileChange = (event) => {
   }
 };
 
-const updateMarkerPosition = (event) => {
-  console.log(event)
-  markerPosition.value = {
-    lat: event.latLng.lat(),
-    lng: event.latLng.lng(),
-  };
+const onMarkerDragEnd = (event) => {
+  const lat = event.latLng.lat();
+  const lng = event.latLng.lng();
+  markerPosition.value = { lat, lng };
+  building.value.location.coordinates = [lat, lng];
 };
 
 const createBuilding = async () => {
   try {
     loading.value = true;
     errors.value = {};
+
     if (cropperRef.value && imagePreview.value) {
       const canvas = cropperRef.value.getResult()?.canvas;
       if (canvas) {
@@ -163,20 +178,24 @@ const createBuilding = async () => {
     formData.append('title', building.value.title);
     formData.append('short_description', building.value.short_description);
     formData.append('long_description', building.value.long_description);
-    formData.append('latitude', building.value.location.lat);
-    formData.append('longitude', building.value.location.lng);
+    formData.append('latitude', building.value.location.coordinates[0]);
+    formData.append('longitude', building.value.location.coordinates[1]);
+
     if (building.value.bg_image) {
       formData.append('bg_image', building.value.bg_image);
     }
-    const {data, error} = await useFetch('/api/buildings/', {
+
+    const { data, error } = await useFetch('/api/buildings/', {
       method: 'POST',
       body: formData,
-      headers: {Accept: 'application/json'},
+      headers: { Accept: 'application/json' },
     });
+
     if (error && error.value) {
-      errors.value = error.value.data?.errors || {general: 'An unknown error occurred'};
+      errors.value = error.value.data?.errors || { general: 'An unknown error occurred' };
       return;
     }
+
     if (data.value) {
       await router.push('/');
     }
@@ -187,4 +206,8 @@ const createBuilding = async () => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  markerOptions.value.position = markerPosition.value;
+});
 </script>
