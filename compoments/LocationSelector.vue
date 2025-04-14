@@ -11,9 +11,6 @@
     />
   </GoogleMap>
 </template>
-
-
-
 <script setup>
 import { ref, defineEmits } from "vue";
 import { GoogleMap, Marker } from "vue3-google-map";

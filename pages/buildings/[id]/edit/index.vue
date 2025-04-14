@@ -5,7 +5,6 @@
         <h1 class="text-xl text-white p-4">Edit Building</h1>
       </div>
       <div class="p-4">
-        <!-- Title -->
         <div class="mb-4">
           <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
             Title <span>*</span>

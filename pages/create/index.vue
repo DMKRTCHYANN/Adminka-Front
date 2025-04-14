@@ -103,6 +103,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -113,7 +114,6 @@ import { GoogleMap, Marker } from "vue3-google-map";
 definePageMeta({
   layout: "navbar",
 });
-
 
 const router = useRouter();
 const errors = ref({});
@@ -134,10 +134,12 @@ const markerPosition = ref({
   lng: building.value.location.coordinates[1],
 });
 
+
 const markerOptions = ref({
   position: markerPosition.value,
   draggable: true,
 });
+
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -151,6 +153,7 @@ const handleFileChange = (event) => {
   }
 };
 
+
 const onMarkerDragEnd = (event) => {
   const lat = event.latLng.lat();
   const lng = event.latLng.lng();
@@ -158,10 +161,12 @@ const onMarkerDragEnd = (event) => {
   building.value.location.coordinates = [lat, lng];
 };
 
+
 const createBuilding = async () => {
   try {
     loading.value = true;
     errors.value = {};
+
 
     if (cropperRef.value && imagePreview.value) {
       const canvas = cropperRef.value.getResult()?.canvas;
@@ -174,6 +179,7 @@ const createBuilding = async () => {
       }
     }
 
+
     const formData = new FormData();
     formData.append('title', building.value.title);
     formData.append('short_description', building.value.short_description);
@@ -181,9 +187,11 @@ const createBuilding = async () => {
     formData.append('latitude', building.value.location.coordinates[0]);
     formData.append('longitude', building.value.location.coordinates[1]);
 
+
     if (building.value.bg_image) {
       formData.append('bg_image', building.value.bg_image);
     }
+
 
     const { data, error } = await useFetch('/api/buildings/', {
       method: 'POST',
@@ -191,10 +199,12 @@ const createBuilding = async () => {
       headers: { Accept: 'application/json' },
     });
 
+
     if (error && error.value) {
       errors.value = error.value.data?.errors || { general: 'An unknown error occurred' };
       return;
     }
+
 
     if (data.value) {
       await router.push('/');
@@ -207,7 +217,11 @@ const createBuilding = async () => {
   }
 };
 
+
 onMounted(() => {
   markerOptions.value.position = markerPosition.value;
 });
 </script>
+
+
+

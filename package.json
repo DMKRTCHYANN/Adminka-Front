@@ -12,6 +12,7 @@
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^44.3.0",
     "@ckeditor/ckeditor5-vue": "^7.3.0",
+    "@googlemaps/js-api-loader": "^1.16.8",
     "@heroicons/vue": "^2.2.0",
     "@nuxt/ui": "^2.21.1",
     "@tailwindcss/vite": "^4.0.15",

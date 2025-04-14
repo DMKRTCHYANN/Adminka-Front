@@ -188,13 +188,17 @@ const openDeleteModal = (building) => {
 const deleteBuildingHandler = async () => {
   if (!selectedBuilding.value) return;
   try {
-    const {error} = await useFetch(`/api/buildings/${selectedBuilding.value.id}`, {
+    const { error } = await useFetch(`/api/buildings/${selectedBuilding.value.id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
-    if (error) throw error;
+    if (error.value) {
+      throw error.value;
+    }
     buildings.value = buildings.value.filter(
         (building) => building.id !== selectedBuilding.value.id
     );
+    totalItems.value -= 1;
   } catch (err) {
     console.error('Error deleting building:', err);
   } finally {
@@ -202,6 +206,7 @@ const deleteBuildingHandler = async () => {
     selectedBuilding.value = null;
   }
 };
+
 
 onMounted(async () => {
   await nextTick();
