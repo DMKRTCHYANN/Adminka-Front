@@ -1,8 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: '2024-11-01',
+    vite: {
+        optimizeDeps: {
+            include: [
+                "@fawmi/vue-google-maps",
+                "fast-deep-equal"
+            ]
+        }
+    },
     css: [
         '@/assets/css/tailwind.css'
+    ],
+    plugins: [
+        '~/plugins/vue-google-maps.client.js'
     ],
     devtools: {
         enabled: true
@@ -12,7 +23,7 @@ export default defineNuxtConfig({
     ],
     runtimeConfig: {
         public: {
-            googleMapsApiKey: 'AIzaSyAkVQ9GmgG4F6VNlg-xRe4vy6MOS1IWDPI'
+            googleMapsApiKey: 'AIzaSyDZrlzgVNXCPNCv-pGTjYN-Ic_DofQk8gE'
         }
     },
     nitro: {

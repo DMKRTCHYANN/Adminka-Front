@@ -72,17 +72,11 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Select Building Location
           </label>
-          <GoogleMap
+          <LocationSelector
               :api-key="$config.public.googleMapsApiKey"
-              style="width: 100%; height: 500px"
-              :center="markerPosition"
-              :zoom="12"
-          >
-            <Marker
-                :options="markerOptions"
-                @dragend="onMarkerDragEnd"
-            />
-          </GoogleMap>
+              v-model="location"
+              style="height: 500px; width: 100%;position: relative"
+          />
         </div>
         <div class="flex justify-center gap-4 mb-[40px]">
           <button
@@ -102,14 +96,12 @@
     </div>
   </div>
 </template>
-
-
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { Cropper } from 'vue-advanced-cropper';
+import {ref, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {Cropper} from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
-import { GoogleMap, Marker } from "vue3-google-map";
+import LocationSelector from "~/compoments/LocationSelector.vue";
 
 definePageMeta({
   layout: "navbar",
@@ -125,7 +117,7 @@ const building = ref({
   short_description: '',
   long_description: '',
   bg_image: '',
-  location: { coordinates: [40.180438, 44.488690] },
+  location: {coordinates: [40.180438, 44.488690]},
 });
 
 
@@ -140,6 +132,19 @@ const markerOptions = ref({
   draggable: true,
 });
 
+const updateLocation = (newLocation) => {
+  location.value = newLocation;
+};
+
+const location = computed({
+  get: () => ({
+    lat: building.value.location.coordinates[0],
+    lng: building.value.location.coordinates[1],
+  }),
+  set: (newLocation) => {
+    building.value.location.coordinates = [newLocation.lat, newLocation.lng];
+  },
+});
 
 const handleFileChange = (event) => {
   const file = event.target.files[0];
@@ -157,7 +162,7 @@ const handleFileChange = (event) => {
 const onMarkerDragEnd = (event) => {
   const lat = event.latLng.lat();
   const lng = event.latLng.lng();
-  markerPosition.value = { lat, lng };
+  markerPosition.value = {lat, lng};
   building.value.location.coordinates = [lat, lng];
 };
 
@@ -173,7 +178,7 @@ const createBuilding = async () => {
       if (canvas) {
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg'));
         if (blob) {
-          const file = new File([blob], 'cropped_image.jpg', { type: blob.type });
+          const file = new File([blob], 'cropped_image.jpg', {type: blob.type});
           building.value.bg_image = file;
         }
       }
@@ -193,15 +198,15 @@ const createBuilding = async () => {
     }
 
 
-    const { data, error } = await useFetch('/api/buildings/', {
+    const {data, error} = await useFetch('/api/buildings/', {
       method: 'POST',
       body: formData,
-      headers: { Accept: 'application/json' },
+      headers: {Accept: 'application/json'},
     });
 
 
     if (error && error.value) {
-      errors.value = error.value.data?.errors || { general: 'An unknown error occurred' };
+      errors.value = error.value.data?.errors || {general: 'An unknown error occurred'};
       return;
     }
 
@@ -222,6 +227,5 @@ onMounted(() => {
   markerOptions.value.position = markerPosition.value;
 });
 </script>
-
 
 

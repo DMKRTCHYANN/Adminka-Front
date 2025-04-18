@@ -10,7 +10,7 @@
       <div class="w-1/2 p-8">
         <h1 class="text-3xl font-extrabold mb-6 text-black">Welcome back!</h1>
         <div class="space-y-4">
-          <form action="" @submit.prevent="login">
+          <form @submit.prevent="login">
             <div>
               <input
                   v-model="email"

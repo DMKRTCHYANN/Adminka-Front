@@ -79,7 +79,7 @@
               v-if="markerPosition"
               :api-key="$config.public.googleMapsApiKey"
               v-model="markerPosition"
-              style="height: 500px; width: 100%;"
+              style="height: 500px; width: 100%;position: relative"
           />
         </div>
         <div class="flex justify-center gap-4">
@@ -216,4 +216,3 @@ onMounted(async () => {
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap");
 @import "https://cdn.quilljs.com/1.3.7/quill.snow.css";
 </style>
-
